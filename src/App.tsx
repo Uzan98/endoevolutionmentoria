@@ -10,6 +10,8 @@ import { LessonPage } from "./pages/LessonPage";
 import { Meetings } from "./pages/Meetings";
 import { Profile } from "./pages/Profile";
 import { Admin } from "./pages/Admin";
+import { Forum } from "./pages/Forum";
+import { ForumThread } from "./pages/ForumThread";
 
 function RequireAuth({ children, role }: { children: ReactElement; role?: "mentor" }) {
   const { user } = useStore();
@@ -29,6 +31,8 @@ export function App() {
         <Route path="modulos/:moduleId" element={<ModulePage />} />
         <Route path="modulos/:moduleId/aulas/:lessonId" element={<LessonPage />} />
         <Route path="encontros" element={<Meetings />} />
+        <Route path="forum" element={<Forum />} />
+        <Route path="forum/:threadId" element={<ForumThread />} />
         <Route path="perfil" element={<Profile />} />
         <Route path="admin" element={<RequireAuth role="mentor"><Admin /></RequireAuth>} />
         <Route path="*" element={<div className="page"><h1 className="title">Página não encontrada</h1></div>} />

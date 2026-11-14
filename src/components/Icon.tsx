@@ -29,6 +29,10 @@ const paths: Record<string, string> = {
   chart: "M5 20V13M10 20V8M15 20v-6M20 20V5",
   note: "M6 3.5h9l3 3v14H6zM9 9h6M9 12.5h6M9 16h4",
   trend: "M4 18l6-6 4 4 6-8M15 8h5v5",
+  forum: "M3.5 5h12v9H8l-4.5 3.5V5ZM15.5 9h5v11l-3.5-2.8H10V14",
+  vote: "M6 15l6-6 6 6",
+  solved: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM8 12.5l2.7 2.7L16 9.8",
+  reply: "M10 8 4 13l6 5M4 13h10a6 6 0 0 1 6 6",
 };
 
 const filled = new Set(["play", "bolt"]);

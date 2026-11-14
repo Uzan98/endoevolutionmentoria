@@ -43,3 +43,22 @@ export const plural = (n: number, one: string, many: string) => `${n} ${n === 1 
 
 /** "19 nov" */
 export const shortDate = (iso: string) => dayMonth.format(new Date(iso)).replace(".", "").replace(" de ", " ");
+
+/** "agora", "há 5 min", "há 3 h", "ontem", "há 4 dias" ou a data. */
+export function timeAgo(iso: string): string {
+  const diff = (Date.now() - new Date(iso).getTime()) / 60000;
+  if (diff < 1) return "agora";
+  if (diff < 60) return `há ${Math.floor(diff)} min`;
+  if (diff < 60 * 24) return `há ${Math.floor(diff / 60)} h`;
+  const days = Math.floor(diff / (60 * 24));
+  if (days === 1) return "ontem";
+  if (days < 30) return `há ${days} dias`;
+  return new Date(iso).toLocaleDateString("pt-BR");
+}
+
+export const initials = (name: string) =>
+  name
+    .split(" ")
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join("");

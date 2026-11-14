@@ -10,6 +10,7 @@ import {
   type Module,
   type User,
 } from "./data/seed";
+import { seedForum, type Reply, type Thread } from "./data/forum";
 
 // Camada de dados da demonstração: tudo fica no navegador (localStorage).
 // Para produção, troque estas funções por chamadas a um backend (ex.: Supabase/Firebase)
@@ -28,6 +29,8 @@ interface DB {
   progress: Record<string, Record<string, Progress>>; // userId -> lessonId -> progresso
   notes: Record<string, Record<string, string>>; // userId -> lessonId -> texto
   lastLesson: Record<string, string>; // userId -> lessonId
+  threads: Thread[]; // fórum de dúvidas
+  replies: Reply[];
   sessionUserId: string | null;
 }
 
@@ -49,6 +52,7 @@ function freshDB(): DB {
     progress,
     notes: structuredClone(seedNotes),
     lastLesson: { "u-camila": "aula-9" },
+    ...seedForum(),
     sessionUserId: null,
   };
 }
@@ -56,7 +60,8 @@ function freshDB(): DB {
 function load(): DB {
   try {
     const raw = localStorage.getItem(KEY);
-    if (raw) return JSON.parse(raw) as DB;
+    // Campos que surgiram depois (ex.: fórum) vêm do seed sem apagar o progresso salvo.
+    if (raw) return { ...freshDB(), ...(JSON.parse(raw) as Partial<DB>) };
   } catch {
     /* armazenamento indisponível: segue com dados iniciais */
   }
@@ -85,6 +90,12 @@ interface Store {
   saveMeeting: (m: LiveMeeting) => void;
   deleteMeeting: (id: string) => void;
   addStudent: (s: Pick<User, "name" | "email" | "city">) => void;
+  createThread: (t: Pick<Thread, "title" | "body" | "moduleId" | "lessonId">) => string;
+  deleteThread: (id: string) => void;
+  addReply: (threadId: string, body: string) => void;
+  deleteReply: (id: string) => void;
+  toggleVote: (kind: "thread" | "reply", id: string) => void;
+  markSolution: (threadId: string, replyId: string | null) => void;
   resetDemo: () => void;
 }
 
@@ -173,6 +184,39 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         ...d,
         users: [...d.users, { ...s, id: uid("u"), password: "demo123", role: "aluno", joinedAt: new Date().toISOString().slice(0, 10) }],
       })),
+    createThread: (t) => {
+      const id = uid("duv");
+      if (user)
+        setDb((d) => ({
+          ...d,
+          threads: [{ ...t, id, authorId: user.id, createdAt: new Date().toISOString(), votes: [] }, ...d.threads],
+        }));
+      return id;
+    },
+    deleteThread: (id) =>
+      setDb((d) => ({ ...d, threads: d.threads.filter((t) => t.id !== id), replies: d.replies.filter((r) => r.threadId !== id) })),
+    addReply: (threadId, body) => {
+      if (!user) return;
+      const reply: Reply = { id: uid("res"), threadId, authorId: user.id, body, createdAt: new Date().toISOString(), votes: [] };
+      setDb((d) => ({ ...d, replies: [...d.replies, reply] }));
+    },
+    deleteReply: (id) =>
+      setDb((d) => ({
+        ...d,
+        replies: d.replies.filter((r) => r.id !== id),
+        threads: d.threads.map((t) => (t.solutionId === id ? { ...t, solutionId: undefined } : t)),
+      })),
+    toggleVote: (kind, id) => {
+      if (!user) return;
+      const flip = (votes: string[]) => (votes.includes(user.id) ? votes.filter((v) => v !== user.id) : [...votes, user.id]);
+      setDb((d) =>
+        kind === "thread"
+          ? { ...d, threads: d.threads.map((t) => (t.id === id ? { ...t, votes: flip(t.votes) } : t)) }
+          : { ...d, replies: d.replies.map((r) => (r.id === id ? { ...r, votes: flip(r.votes) } : r)) },
+      );
+    },
+    markSolution: (threadId, replyId) =>
+      setDb((d) => ({ ...d, threads: d.threads.map((t) => (t.id === threadId ? { ...t, solutionId: replyId ?? undefined } : t)) })),
     resetDemo: () => setDb({ ...freshDB(), sessionUserId: db.sessionUserId }),
   };
 

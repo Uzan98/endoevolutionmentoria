@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { Icon } from "../components/Icon";
 import { VideoPlayer } from "../components/VideoPlayer";
 import { moduleProgress, useStore } from "../store";
-import { duration } from "../lib/format";
+import { duration, plural, timeAgo } from "../lib/format";
 
 export function LessonPage() {
   const { moduleId, lessonId } = useParams();
@@ -59,6 +59,8 @@ export function LessonPage() {
   const prev = m.lessons[lIdx - 1];
   const done = isDone(lesson.id);
   const p = moduleProgress(m, isDone);
+
+  const lessonThreads = db.threads.filter((t) => t.lessonId === lesson.id).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
   const goNext = () => next && nav(`/modulos/${next.mod.id}/aulas/${next.lesson.id}`);
 
@@ -118,6 +120,40 @@ export function LessonPage() {
               </ul>
             ) : (
               <p className="empty">Esta aula não tem materiais para download.</p>
+            )}
+          </section>
+
+          <section className="block">
+            <div className="block-head">
+              <h2 className="panel-title">
+                <Icon name="forum" size={18} /> Dúvidas desta aula
+              </h2>
+              <Link to={`/forum?nova=1&aula=${lesson.id}`} className="btn btn-secondary btn-sm">
+                <Icon name="plus" size={14} /> Perguntar sobre esta aula
+              </Link>
+            </div>
+            {lessonThreads.length ? (
+              <ul className="mini-threads">
+                {lessonThreads.slice(0, 3).map((t) => {
+                  const n = db.replies.filter((r) => r.threadId === t.id).length;
+                  return (
+                    <li key={t.id}>
+                      <Link to={`/forum/${t.id}`} className="mini-thread">
+                        <strong>{t.title}</strong>
+                        <span className="muted">
+                          {plural(n, "resposta", "respostas")} · {timeAgo(t.createdAt)}
+                          {t.solutionId ? " · resolvida" : ""}
+                        </span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <p className="empty">Ninguém perguntou sobre esta aula ainda.</p>
+            )}
+            {lessonThreads.length > 3 && (
+              <Link to="/forum" className="link">Ver as {lessonThreads.length} dúvidas no fórum</Link>
             )}
           </section>
 

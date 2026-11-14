@@ -22,6 +22,7 @@ export function Shell() {
     { to: "/", label: "Início", icon: "home", end: true },
     { to: "/modulos", label: "Módulos", icon: "modules" },
     { to: "/encontros", label: "Encontros ao vivo", icon: "live" },
+    { to: "/forum", label: "Fórum", icon: "forum" },
     { to: "/perfil", label: "Meu perfil", icon: "user" },
   ];
 
@@ -34,6 +35,10 @@ export function Shell() {
       : current >= 0
         ? `Você está a ${plural(left, "aula", "aulas")} de concluir o módulo ${current + 1}.`
         : "Você concluiu todos os módulos. Parabéns!";
+
+  // Mentor: dúvidas que ainda não têm resposta dele.
+  const mentorIds = new Set(db.users.filter((u) => u.role === "mentor").map((u) => u.id));
+  const waiting = db.threads.filter((t) => !db.replies.some((r) => r.threadId === t.id && mentorIds.has(r.authorId))).length;
 
   const initials = user.name.split(" ").map((p) => p[0]).slice(0, 2).join("");
 
@@ -51,6 +56,9 @@ export function Shell() {
         {links.map((l) => (
           <NavLink key={l.to} to={l.to} end={l.end} className="nav-item">
             <Icon name={l.icon} size={20} /> {l.label}
+            {l.to === "/forum" && user.role === "mentor" && waiting > 0 && (
+              <span className="nav-badge" aria-label={`${waiting} sem resposta do mentor`}>{waiting}</span>
+            )}
           </NavLink>
         ))}
         {user.role === "mentor" && (
@@ -113,7 +121,7 @@ export function Shell() {
 
 /** Busca de aulas e notificações, no canto superior direito. */
 function TopActions() {
-  const { db } = useStore();
+  const { db, user } = useStore();
   const [panel, setPanel] = useState<"search" | "bell" | null>(null);
   const [q, setQ] = useState("");
   const ref = useRef<HTMLDivElement>(null);
@@ -140,6 +148,17 @@ function TopActions() {
       )
     : [];
   const upcoming = db.meetings.filter((m) => new Date(m.startsAt).getTime() + m.durationMin * 60000 > Date.now());
+  // Respostas de outras pessoas nas minhas dúvidas, últimos 7 dias.
+  const weekAgo = Date.now() - 7 * 86400000;
+  const answers = user
+    ? db.replies
+        .filter((r) => r.authorId !== user.id && new Date(r.createdAt).getTime() > weekAgo)
+        .map((r) => ({ r, t: db.threads.find((t) => t.id === r.threadId) }))
+        .filter((x) => x.t && x.t.authorId === user.id)
+        .sort((a, b) => b.r.createdAt.localeCompare(a.r.createdAt))
+        .slice(0, 3)
+    : [];
+  const hasNews = upcoming.length > 0 || answers.length > 0;
 
   return (
     <div className="top-actions" ref={ref}>
@@ -148,7 +167,7 @@ function TopActions() {
       </button>
       <button className="round-btn" aria-label="Notificações" aria-expanded={panel === "bell"} onClick={() => setPanel(panel === "bell" ? null : "bell")}>
         <Icon name="bell" size={20} />
-        {upcoming.length > 0 && <span className="dot" aria-hidden="true" />}
+        {hasNews && <span className="dot" aria-hidden="true" />}
       </button>
 
       {panel === "search" && (
@@ -173,6 +192,16 @@ function TopActions() {
         <div className="popover" role="dialog" aria-label="Notificações">
           <p className="pop-title">Notificações</p>
           <ul className="pop-list">
+            {answers.map(({ r, t }) => (
+              <li key={r.id}>
+                <Link to={`/forum/${t!.id}`} className="pop-item">
+                  <strong>Nova resposta na sua dúvida</strong>
+                  <span>
+                    {db.users.find((u) => u.id === r.authorId)?.name ?? "Alguém"} respondeu “{t!.title}”
+                  </span>
+                </Link>
+              </li>
+            ))}
             {upcoming.slice(0, 3).map((m) => (
               <li key={m.id}>
                 <Link to="/encontros" className="pop-item">
@@ -181,7 +210,7 @@ function TopActions() {
                 </Link>
               </li>
             ))}
-            {upcoming.length === 0 && <li className="pop-empty">Nenhuma notificação nova.</li>}
+            {!hasNews && <li className="pop-empty">Nenhuma notificação nova.</li>}
           </ul>
         </div>
       )}

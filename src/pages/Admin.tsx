@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useState, type FormEvent } from "react";
+import { Dialog } from "../components/Dialog";
 import { Icon } from "../components/Icon";
 import { VideoPlayer } from "../components/VideoPlayer";
 import { uid, useStore } from "../store";
@@ -142,24 +143,6 @@ function ContentTab() {
 
       {editing && <Editor editing={editing} onClose={() => setEditing(null)} />}
     </section>
-  );
-}
-
-function Dialog({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
-  const ref = useRef<HTMLDialogElement>(null);
-  useEffect(() => {
-    ref.current?.showModal();
-  }, []);
-  return (
-    <dialog ref={ref} className="dialog" onClose={onClose} aria-label={title}>
-      <div className="dialog-head">
-        <h2 className="title-sm">{title}</h2>
-        <button className="icon-btn" aria-label="Fechar" onClick={onClose}>
-          <Icon name="close" />
-        </button>
-      </div>
-      {children}
-    </dialog>
   );
 }
 

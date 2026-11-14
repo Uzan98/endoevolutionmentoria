@@ -26,6 +26,7 @@ A tela de login tem botões que preenchem esses dados.
 - Módulos: lista com status e uma barra por aula (largura = duração da aula).
 - Página da aula: player (YouTube, Vimeo ou .mp4), marcar como concluída (automático ao fim de um .mp4), próxima aula, materiais em PDF, anotações pessoais.
 - Encontros ao vivo: agenda com link da sala.
+- Fórum de dúvidas: perguntas por módulo/aula, busca, filtros (sem resposta, resolvidas, minhas), respostas com destaque para o mentor, "marcar como solução", votos e notificação quando alguém responde. Cada aula mostra as dúvidas ligadas a ela.
 - Meu perfil: dados pessoais e troca de senha.
 - Layout próprio para celular (menu em tela cheia).
 
@@ -33,6 +34,7 @@ A tela de login tem botões que preenchem esses dados.
 - Criar, editar, excluir e reordenar módulos e aulas; colar o link do vídeo com pré-visualização; anexar materiais.
 - Alunos: progresso de cada aluno, cadastro de novos alunos.
 - Encontros: agendar e remover.
+- Fórum: contador no menu com as dúvidas que ainda não têm resposta do mentor; o mentor pode responder, marcar solução e moderar (excluir).
 - "Restaurar dados de demonstração" volta tudo ao estado inicial antes de uma apresentação.
 
 ## Limites desta versão (importante para a conversa com o cliente)

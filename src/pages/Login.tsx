@@ -32,7 +32,7 @@ export function Login() {
   return (
     <div className="login">
       <section className="login-field">
-        <img className="login-art" src="/img/dente-lima.webp" alt="" aria-hidden="true" />
+        <img className="login-art" src="/img/dente-vidro.webp" alt="" aria-hidden="true" />
         <p className="login-wordmark">
           <ToothLogo />
           <span>

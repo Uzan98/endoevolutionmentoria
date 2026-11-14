@@ -54,7 +54,7 @@ export function Home() {
 
   return (
     <div className="page page-home">
-      <img className="home-art" src="/img/dente-topo.webp" alt="" aria-hidden="true" />
+      <img className="home-art" src="/img/dente-anatomia.webp" alt="" aria-hidden="true" />
 
       <header className="hello">
         <p className="eyebrow">{welcome}</p>
@@ -123,7 +123,7 @@ export function Home() {
 
       <section className="home-row row-a">
         <article className="hero-card">
-          <img src="/img/dente-lima.webp" alt="" aria-hidden="true" className="hero-art" />
+          <img src="/img/dente-vidro.webp" alt="" aria-hidden="true" className="hero-art" />
           <div className="hero-copy">
             <span className="hero-pill">{done.length ? "Continue de onde parou" : "Comece por aqui"}</span>
             {next && nextMod ? (

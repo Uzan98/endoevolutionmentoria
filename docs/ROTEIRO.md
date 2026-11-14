@@ -13,6 +13,7 @@ Como a plataforma foi construída, passo a passo, com a skill usada em cada etap
 | 5. Verificação visual | Capturas em 1536px e 390px comparadas com o mockup. | `playwright` |
 | 6. Teste de fluxo | Navegador automatizado: rotas protegidas, erro de senha, concluir aula, anotação, permissão do mentor, publicar aula e vê-la como aluno. | `playwright` |
 | 6b. Fórum de dúvidas | Perguntas ligadas a módulo e aula, respostas do mentor em destaque, solução marcada, votos, notificações. 16 testes automatizados no navegador. | `playwright` |
+| 6c. App (PWA) e celular | Manifesto, service worker (offline), ícones, convite de instalação para Android e iPhone, barra de abas, áreas seguras do iPhone. 17 testes em iPhone emulado. | `playwright` |
 | 7. Documentação | README, este roteiro e as skills do projeto. | — |
 
 ## Roteiro da apresentação ao cliente (5 minutos)

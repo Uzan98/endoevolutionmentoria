@@ -3,12 +3,15 @@ import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-do
 import { useStore } from "../store";
 import { Icon, ToothLogo } from "./Icon";
 import { meetingDate, plural, relativeDay } from "../lib/format";
+import { useOnline, usePWAInstall } from "../lib/pwa";
 
 export function Shell() {
   const { user, logout, db, isDone } = useStore();
   const [open, setOpen] = useState(false);
   const loc = useLocation();
   const nav = useNavigate();
+  const online = useOnline();
+  const pwa = usePWAInstall();
 
   // Ao trocar de página: fecha o menu do celular e volta ao topo.
   // (corpo com chaves: scrollTo pode retornar uma Promise, que o React trataria como cleanup)
@@ -84,6 +87,11 @@ export function Shell() {
       >
         <Icon name="logout" size={20} /> Sair
       </button>
+      {pwa.mode === "android" && (
+        <button className="nav-item nav-install" onClick={pwa.install}>
+          <Icon name="down" size={20} /> Instalar o app
+        </button>
+      )}
       <Link to={user.role === "mentor" ? "/admin" : "/modulos"} className="evolve-card">
         <span className="evolve-bolt"><Icon name="bolt" size={22} /></span>
         <strong>Continue evoluindo!</strong>
@@ -97,12 +105,17 @@ export function Shell() {
     <div className="app">
       <aside className="sidebar">{side}</aside>
       <header className="topbar">
-        <ToothLogo size={30} />
-        <strong>Endo Evolution</strong>
-        <button className="icon-btn" aria-label="Abrir menu" aria-expanded={open} onClick={() => setOpen(true)}>
-          <Icon name="menu" size={22} />
-        </button>
+        <Link to="/" className="topbar-brand" aria-label="Endo Evolution, início">
+          <ToothLogo size={30} />
+          <strong>Endo Evolution</strong>
+        </Link>
+        <TopActions variant="bar" />
       </header>
+      {!online && (
+        <p className="offline-bar" role="status">
+          Você está sem internet. O app continua funcionando, mas os vídeos precisam de conexão.
+        </p>
+      )}
       {open && (
         <div className="sheet" role="dialog" aria-modal="true" aria-label="Menu">
           <button className="icon-btn sheet-close" aria-label="Fechar menu" onClick={() => setOpen(false)}>
@@ -112,15 +125,37 @@ export function Shell() {
         </div>
       )}
       <main className="canvas">
-        <TopActions />
+        <TopActions variant="float" />
         <Outlet />
       </main>
+      <nav className="tabbar" aria-label="Navegação principal">
+        {[
+          { to: "/", label: "Início", icon: "home", end: true },
+          { to: "/modulos", label: "Módulos", icon: "modules" },
+          { to: "/forum", label: "Fórum", icon: "forum" },
+          { to: "/encontros", label: "Encontros", icon: "live" },
+        ].map((t) => (
+          <NavLink key={t.to} to={t.to} end={t.end} className="tab-item">
+            <span className="tab-icon">
+              <Icon name={t.icon} size={22} />
+              {t.to === "/forum" && user.role === "mentor" && waiting > 0 && <span className="tab-badge">{waiting}</span>}
+            </span>
+            {t.label}
+          </NavLink>
+        ))}
+        <button className={`tab-item${open ? " active" : ""}`} aria-label="Mais opções" aria-expanded={open} onClick={() => setOpen(true)}>
+          <span className="tab-icon">
+            <Icon name="menu" size={22} />
+          </span>
+          Mais
+        </button>
+      </nav>
     </div>
   );
 }
 
 /** Busca de aulas e notificações, no canto superior direito. */
-function TopActions() {
+function TopActions({ variant }: { variant: "bar" | "float" }) {
   const { db, user } = useStore();
   const [panel, setPanel] = useState<"search" | "bell" | null>(null);
   const [q, setQ] = useState("");
@@ -161,7 +196,7 @@ function TopActions() {
   const hasNews = upcoming.length > 0 || answers.length > 0;
 
   return (
-    <div className="top-actions" ref={ref}>
+    <div className={`top-actions top-actions-${variant}`} ref={ref}>
       <button className="round-btn" aria-label="Buscar aulas" aria-expanded={panel === "search"} onClick={() => setPanel(panel === "search" ? null : "search")}>
         <Icon name="search" size={20} />
       </button>

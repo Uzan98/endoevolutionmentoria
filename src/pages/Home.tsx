@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Icon } from "../components/Icon";
 import { ToothArt } from "../components/ToothArt";
+import { InstallCard } from "../components/InstallCard";
 import { moduleProgress, useStore } from "../store";
 import { duration, firstName, meetingDate, relativeDay, shortDate } from "../lib/format";
 
@@ -66,6 +67,8 @@ export function Home() {
           {user.role === "mentor" ? "Você está vendo a área do aluno como mentor." : "Continue sua jornada rumo à excelência em Endodontia."}
         </p>
       </header>
+
+      <InstallCard />
 
       <section className="kpis" aria-label="Resumo do seu progresso">
         <div className="card kpi-card">

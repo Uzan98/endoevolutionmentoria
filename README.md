@@ -37,6 +37,18 @@ A tela de login tem botões que preenchem esses dados.
 - Fórum: contador no menu com as dúvidas que ainda não têm resposta do mentor; o mentor pode responder, marcar solução e moderar (excluir).
 - "Restaurar dados de demonstração" volta tudo ao estado inicial antes de uma apresentação.
 
+## App no celular (PWA)
+
+A plataforma é um app instalável:
+
+- **Android (Chrome):** aparece o convite "Instalar o app" no início (e no menu "Mais"); um toque instala.
+- **iPhone (Safari):** o convite explica: Compartilhar → Adicionar à Tela de Início.
+- Abre em tela cheia, com ícone próprio, barra de status verde e atalhos (Módulos, Fórum, Encontros) ao segurar o ícone no Android.
+- Funciona offline (tudo menos os vídeos, que precisam de internet); um aviso aparece quando cai a conexão.
+- No celular: barra de abas inferior, busca e notificações na barra superior, vídeo da aula preso no topo ao rolar, formulários abrindo de baixo para cima, campos com 16px (sem zoom no iPhone) e respeito ao entalhe e à barra de gestos.
+
+Arquivos: `vite.config.ts` (manifesto e service worker via vite-plugin-pwa), `public/icons/`, `public/screenshots/`, `src/lib/pwa.ts`.
+
 ## Limites desta versão (importante para a conversa com o cliente)
 
 - **Os dados ficam no navegador** (localStorage). Cada computador tem sua própria cópia; o que o mentor cadastra não aparece no celular do aluno. Para produção, ver `.claude/skills/backend-producao`.

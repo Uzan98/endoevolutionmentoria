@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { Icon } from "../components/Icon";
 import { VideoPlayer } from "../components/VideoPlayer";
 import { moduleProgress, useStore } from "../store";
@@ -9,6 +9,7 @@ export function LessonPage() {
   const { moduleId, lessonId } = useParams();
   const { db, user, isDone, toggleDone, setLastLesson, setNote } = useStore();
   const nav = useNavigate();
+  const loc = useLocation();
   const mIdx = db.modules.findIndex((m) => m.id === moduleId);
   const m = db.modules[mIdx];
   const lIdx = m?.lessons.findIndex((l) => l.id === lessonId) ?? -1;
@@ -27,6 +28,17 @@ export function LessonPage() {
   useEffect(() => {
     if (lesson) setLastLesson(lesson.id);
   }, [lesson, setLastLesson]);
+
+  // Vindo de "Nova anotação": leva direto ao campo de anotações.
+  useEffect(() => {
+    if (loc.hash !== "#anotacoes") return;
+    const t = window.setTimeout(() => {
+      const el = document.getElementById("note");
+      el?.scrollIntoView({ block: "center" });
+      el?.focus({ preventScroll: true });
+    }, 50);
+    return () => window.clearTimeout(t);
+  }, [loc.hash, lessonId]);
 
   if (!m || !lesson)
     return (
@@ -109,7 +121,7 @@ export function LessonPage() {
             )}
           </section>
 
-          <section className="block">
+          <section className="block" id="anotacoes">
             <label className="panel-title" htmlFor="note">
               Minhas anotações
             </label>

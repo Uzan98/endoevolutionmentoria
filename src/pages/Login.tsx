@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useStore } from "../store";
+import { ToothLogo } from "../components/Icon";
 
 export function Login() {
   const { user, login, db } = useStore();
@@ -31,7 +32,15 @@ export function Login() {
   return (
     <div className="login">
       <section className="login-field">
-        <p className="login-wordmark">Endo Evolution</p>
+        <img className="login-art" src="/img/dente-lima.webp" alt="" aria-hidden="true" />
+        <p className="login-wordmark">
+          <ToothLogo />
+          <span>
+            Endo
+            <br />
+            Evolution
+          </span>
+        </p>
         <div className="login-copy">
           <h1 className="login-title">A sua endodontia, um módulo por vez.</h1>
           <p className="login-sub">

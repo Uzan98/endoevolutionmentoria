@@ -33,6 +33,8 @@ export interface User {
   email: string;
   password: string;
   role: Role;
+  /** Para a saudação: "Bem-vinda" (f) ou "Bem-vindo" (m). */
+  genero?: "f" | "m";
   city?: string;
   joinedAt: string; // ISO date
 }
@@ -138,6 +140,7 @@ export const seedUsers: User[] = [
     email: "aluna@endoevolution.com",
     password: "demo123",
     role: "aluno",
+    genero: "f",
     city: "Belo Horizonte, MG",
     joinedAt: "2026-09-21",
   },
@@ -147,6 +150,7 @@ export const seedUsers: User[] = [
     email: "mentor@endoevolution.com",
     password: "demo123",
     role: "mentor",
+    genero: "m",
     joinedAt: "2026-08-01",
   },
   { id: "u-rafael", name: "Rafael Mendes", email: "rafael.mendes@exemplo.com", password: "demo123", role: "aluno", city: "Curitiba, PR", joinedAt: "2026-09-21" },

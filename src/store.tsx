@@ -15,7 +15,7 @@ import {
 // Para produção, troque estas funções por chamadas a um backend (ex.: Supabase/Firebase)
 // mantendo a mesma interface do contexto — as páginas não precisam mudar.
 
-const KEY = "endoevolution:v1";
+const KEY = "endoevolution:v2";
 
 interface Progress {
   completedAt: string;

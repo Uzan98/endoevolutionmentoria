@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useStore } from "../store";
 import { ToothLogo } from "../components/Icon";
+import { ToothArt } from "../components/ToothArt";
 
 export function Login() {
   const { user, login, db } = useStore();
@@ -32,7 +33,7 @@ export function Login() {
   return (
     <div className="login">
       <section className="login-field">
-        <img className="login-art" src="/img/dente-vidro.webp" alt="" aria-hidden="true" />
+        <ToothArt className="login-art" />
         <p className="login-wordmark">
           <ToothLogo />
           <span>

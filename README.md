@@ -54,7 +54,7 @@ src/
   pages/               Login, Home, Modules, ModulePage, LessonPage, Meetings, Profile, Admin
   styles.css           todo o visual (tokens no :root)
 public/materiais/      PDFs de apoio
-public/img/            ilustrações do dente em alta resolução (fundo transparente)
+public/img/            dente translúcido em alta resolução (efeitos em src/components/ToothArt.tsx)
 docs/ROTEIRO.md        passo a passo de como a plataforma foi construída e próximos passos
 .claude/skills/        skills do projeto para o Claude Code continuar o trabalho
 ```

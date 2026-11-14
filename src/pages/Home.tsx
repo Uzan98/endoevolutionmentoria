@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Icon } from "../components/Icon";
+import { ToothArt } from "../components/ToothArt";
 import { moduleProgress, useStore } from "../store";
 import { duration, firstName, meetingDate, relativeDay, shortDate } from "../lib/format";
 
@@ -54,7 +55,7 @@ export function Home() {
 
   return (
     <div className="page page-home">
-      <img className="home-art" src="/img/dente-anatomia.webp" alt="" aria-hidden="true" />
+      <ToothArt variant="light" className="home-art" />
 
       <header className="hello">
         <p className="eyebrow">{welcome}</p>
@@ -123,7 +124,7 @@ export function Home() {
 
       <section className="home-row row-a">
         <article className="hero-card">
-          <img src="/img/dente-vidro.webp" alt="" aria-hidden="true" className="hero-art" />
+          <ToothArt className="hero-art" />
           <div className="hero-copy">
             <span className="hero-pill">{done.length ? "Continue de onde parou" : "Comece por aqui"}</span>
             {next && nextMod ? (

@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bem-vindo(a) à mentoria</title></head>
+<body style="margin:0;padding:0;background:#F2F7F5;font-family:Arial,Helvetica,sans-serif;color:#252B2A">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F2F7F5;padding:32px 12px"><tr><td align="center">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:540px;background:#ffffff;border-radius:22px;overflow:hidden">
+<tr><td style="background:#073B38;padding:22px 28px">
+<img src="https://endoevolutionmentoria.vercel.app/icons/icon-192.png" width="40" height="40" alt="" style="border-radius:10px;vertical-align:middle;border:0">
+<span style="color:#ffffff;font-size:18px;font-weight:bold;vertical-align:middle;padding-left:10px">Endo Evolution</span>
+</td></tr>
+<tr><td style="padding:34px 30px 30px;font-size:16px;line-height:1.6">
+<h1 style="margin:0 0 14px;font-size:24px;line-height:1.25;color:#073B38">Bem-vindo(a) à mentoria</h1>
+<p style="margin:0 0 12px">{{ if .Data.name }}Olá, {{ .Data.name }}!{{ else }}Olá!{{ end }}</p><p style="margin:0">Seu acesso à área de membros da <b>Endo Evolution</b> está pronto. Crie sua senha para assistir às video-aulas, tirar dúvidas no fórum e acompanhar os encontros ao vivo.</p><table role="presentation" cellpadding="0" cellspacing="0" style="margin:28px 0 8px"><tr><td style="border-radius:999px;background:#126F65">
+<a href="{{ .ConfirmationURL }}" style="display:inline-block;padding:15px 30px;border-radius:999px;color:#ffffff;font-weight:bold;font-size:16px;text-decoration:none">Criar minha senha</a>
+</td></tr></table>
+<p style="margin:18px 0 0;font-size:13px;line-height:1.5;color:#5B6765">Se o botão não funcionar, copie e cole este endereço no navegador:<br>
+<a href="{{ .ConfirmationURL }}" style="color:#126F65;word-break:break-all">{{ .ConfirmationURL }}</a></p>
+</td></tr>
+<tr><td style="padding:18px 30px;background:#E3F5EF;font-size:12.5px;line-height:1.5;color:#3d4a48">O link vale por 24 horas. Se ele expirar, use “Esqueci minha senha” na tela de login com este mesmo e-mail.</td></tr>
+</table>
+<p style="margin:16px 0 0;font-size:12px;color:#8A9593">Endo Evolution · Mentoria em Endodontia</p>
+</td></tr></table>
+</body></html>

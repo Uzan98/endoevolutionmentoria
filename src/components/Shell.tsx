@@ -3,7 +3,7 @@ import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-do
 import { useStore } from "../store";
 import { Icon, ToothLogo } from "./Icon";
 import { meetingDate, plural, relativeDay } from "../lib/format";
-import { useOnline, usePWAInstall } from "../lib/pwa";
+import { useAppUpdate, useOnline, usePWAInstall } from "../lib/pwa";
 import { useTheme } from "../lib/theme";
 import { useChat } from "../chat";
 
@@ -15,6 +15,7 @@ export function Shell() {
   const nav = useNavigate();
   const online = useOnline();
   const pwa = usePWAInstall();
+  const update = useAppUpdate();
 
   // Mensagem nova fora da página de mensagens: aviso rápido com atalho para a conversa.
   const [incoming, setIncoming] = useState<{ id: string; from: string; to: string; body: string } | null>(null);
@@ -162,6 +163,12 @@ export function Shell() {
           <button className="icon-btn" aria-label="Fechar aviso" onClick={clearError}>
             <Icon name="close" size={16} />
           </button>
+        </div>
+      )}
+      {update.ready && !error && !incoming && (
+        <div className="toast toast-update" role="status">
+          <span>Nova versão da plataforma disponível.</span>
+          <button className="btn btn-primary btn-sm" onClick={update.apply}>Atualizar</button>
         </div>
       )}
       {incoming && !error && (

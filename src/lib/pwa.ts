@@ -88,3 +88,96 @@ export function useOnline() {
   }, []);
   return online;
 }
+
+// ---------------------------------------------------------------- atualizações do app instalado
+// O app instalado fica aberto em segundo plano e quase nunca recarrega; por isso procuramos versão
+// nova ao voltar para ele e a cada 30 min. Quando há versão nova:
+// * logo após abrir (antes de a pessoa mexer) ou com o app em segundo plano: recarrega sozinho;
+// * no meio do uso: mostra "Nova versão disponível" e aplica ao sair do app (sem perder o que está digitando).
+let updateReady = false;
+const updateListeners = new Set<() => void>();
+
+export function registerAppUpdates() {
+  if (!("serviceWorker" in navigator) || import.meta.env.DEV) return;
+  let hadController = !!navigator.serviceWorker.controller; // a primeira instalação não é "versão nova"
+  const startedAt = Date.now();
+  let reloading = false;
+  const reload = () => {
+    if (reloading) return;
+    reloading = true;
+    window.location.reload();
+  };
+
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (!hadController) {
+      hadController = true;
+      return;
+    }
+    if (document.visibilityState === "hidden" || Date.now() - startedAt < 8000) return reload();
+    updateReady = true;
+    updateListeners.forEach((l) => l());
+  });
+
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("/sw.js", { scope: "/", updateViaCache: "none" })
+      .then((reg) => {
+        const check = () => void reg.update().catch(() => {});
+        window.setInterval(check, 30 * 60 * 1000);
+        document.addEventListener("visibilitychange", () => {
+          if (document.visibilityState === "visible") check();
+          else if (updateReady) reload(); // saiu do app: volta já na versão nova
+        });
+        window.addEventListener("online", check);
+      })
+      .catch(() => {});
+  });
+}
+
+/** true quando uma versão nova foi baixada e falta só recarregar. */
+export function useAppUpdate() {
+  const [ready, setReady] = useState(updateReady);
+  useEffect(() => {
+    const l = () => setReady(true);
+    updateListeners.add(l);
+    return () => {
+      updateListeners.delete(l);
+    };
+  }, []);
+  return { ready, apply: () => window.location.reload() };
+}
+
+// ---------------------------------------------------------------- teclado no celular
+// Mede a área visível de verdade (sem o teclado) em --vvh e marca html.kbd-open quando o teclado
+// está aberto. O layout só muda DEPOIS que o teclado abriu: mexer na tela no momento do toque
+// pode impedir o teclado de abrir em alguns aparelhos.
+export function trackKeyboard() {
+  const vv = window.visualViewport;
+  if (!vv || !window.matchMedia("(pointer: coarse)").matches) return;
+  const root = document.documentElement;
+  let full = vv.height;
+  let raf = 0;
+  const apply = () => {
+    raf = 0;
+    if (vv.scale > 1.05) return; // zoom com os dedos: não é teclado
+    full = Math.max(full, vv.height);
+    const open = vv.height < full * 0.8;
+    root.style.setProperty("--vvh", `${Math.round(vv.height)}px`);
+    root.classList.toggle("kbd-open", open);
+    if (open) {
+      // o iPhone desloca a página ao abrir o teclado; mantemos o topo no lugar e o campo à vista
+      window.scrollTo(0, 0);
+      const el = document.activeElement as HTMLElement | null;
+      if (el && /^(TEXTAREA|INPUT)$/.test(el.tagName)) el.scrollIntoView({ block: "nearest" });
+    }
+  };
+  const schedule = () => {
+    if (!raf) raf = requestAnimationFrame(apply);
+  };
+  vv.addEventListener("resize", schedule);
+  window.addEventListener("orientationchange", () => {
+    full = 0; // nova orientação: mede de novo
+    setTimeout(schedule, 300);
+  });
+  apply();
+}

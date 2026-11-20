@@ -617,9 +617,10 @@ button { cursor: pointer; }
 }
 
 /* app instalado: sem barra do navegador, a barra superior encosta no topo */
+/* app instalado: sem seleção de texto acidental só nas barras e botões
+   (desligar no body inteiro impede o teclado de abrir no iPhone) */
 @media (display-mode: standalone) {
-  body { user-select: none; -webkit-user-select: none; }
-  input, textarea, .reply-body, .thread-body, .note-row, .lead { user-select: text; -webkit-user-select: text; }
+  .tabbar, .topbar, .sheet .nav, button, .tab-item, .chat-row { user-select: none; -webkit-user-select: none; }
 }
 
 /* ================= login real (Supabase) ================= */
@@ -928,13 +929,13 @@ button { cursor: pointer; }
   /* altura = tela - barra do topo - barra de abas */
   .chat {
     min-height: 0; border-radius: 18px;
-    height: calc(100dvh - 60px - env(safe-area-inset-top) - 65px - env(safe-area-inset-bottom) - 24px);
+    height: calc(var(--vvh, 100dvh) - 60px - env(safe-area-inset-top) - 65px - env(safe-area-inset-bottom) - 24px);
     margin-bottom: 12px;
   }
-  .offline-bar ~ .canvas .chat { height: calc(100dvh - 96px - env(safe-area-inset-top) - 65px - env(safe-area-inset-bottom) - 24px); }
-  /* teclado aberto: esconde as abas para sobrar espaço */
-  body:has(.chat-input:focus) .tabbar { display: none; }
-  body:has(.chat-input:focus) .chat { height: calc(100dvh - 60px - env(safe-area-inset-top) - 24px); }
+  .offline-bar ~ .canvas .chat { height: calc(var(--vvh, 100dvh) - 96px - env(safe-area-inset-top) - 65px - env(safe-area-inset-bottom) - 24px); }
+  /* teclado aberto (medido depois que ele abriu): esconde as abas e o chat ocupa a área visível */
+  .kbd-open .tabbar { display: none; }
+  .kbd-open .chat { height: calc(var(--vvh, 100dvh) - 60px - env(safe-area-inset-top) - 16px); margin-bottom: 4px; }
 }
 @media (max-width: 760px) {
   .chat-split { grid-template-columns: 1fr; }
@@ -955,3 +956,4 @@ button { cursor: pointer; }
 .toast-chat-link > span > span { color: #c5ddd6; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .toast-chat .icon-btn:hover { background: rgba(255, 255, 255, 0.1) !important; color: #fff !important; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.toast-update { padding-left: 16px; } .toast-update .btn { flex: none; }

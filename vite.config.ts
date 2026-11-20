@@ -7,6 +7,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "autoUpdate",
+      injectRegister: false, // registrado em src/lib/pwa.ts (procura versão nova ao voltar para o app)
       includeAssets: ["favicon.svg", "icons/apple-touch-icon.png", "icons/favicon-32.png"],
       manifest: {
         id: "/",
@@ -43,6 +44,9 @@ export default defineConfig({
         globPatterns: ["**/*.{js,css,html,svg,png,webp,woff,woff2,pdf}"],
         globIgnores: ["screenshots/**"],
         navigateFallback: "/index.html",
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        skipWaiting: true,
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
         runtimeCaching: [
           {

@@ -63,7 +63,7 @@ A plataforma usa o Supabase (projeto `ENDOEVOLUTION`, região us-east-1) para lo
 
 ## Antes de ir para produção (pendências)
 
-- **E-mails:** o envio padrão do Supabase só entrega para e-mails da equipe do projeto e tem limite de poucos e-mails por hora. Para convidar alunos reais e recuperar senha, configure um SMTP próprio (ex.: Resend) em Authentication → Emails.
+- **E-mails:** o Supabase envia pelo Resend (SMTP `smtp.resend.com`, limite de 30/h no Supabase; 3.000/mês e 100/dia no plano gratuito do Resend). Modelos em português em `supabase/templates/` (aplicar com `python3 scripts/email-templates.py --apply`). **Pendente:** registrar o domínio, verificá-lo no Resend e trocar o remetente provisório `onboarding@resend.dev` (que só entrega para o dono da conta Resend) por `nao-responda@<domínio>`.
 - **Vídeos:** os vídeos de exemplo são clipes de domínio público. Troque pelos links reais (de preferência Vimeo ou Panda Video, com proteção por domínio).
 - **Pagamento:** ainda não integrado (Stripe ou Hotmart/Kiwify liberando o acesso automaticamente).
 - **LGPD:** política de privacidade e termos de uso. Os dados ficam nos EUA (região do projeto); isso precisa constar na política.

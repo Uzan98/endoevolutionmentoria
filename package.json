@@ -7,11 +7,13 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc -b"
+    "typecheck": "tsc -b",
+    "seed:gen": "esbuild scripts/gen-seed.ts --bundle --platform=node --format=esm --outfile=node_modules/.cache/gen-seed.mjs --log-level=warning && node node_modules/.cache/gen-seed.mjs"
   },
   "dependencies": {
     "@fontsource/dm-serif-display": "^5.1.0",
     "@fontsource/plus-jakarta-sans": "^5.1.0",
+    "@supabase/supabase-js": "^2.118.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.28.0"

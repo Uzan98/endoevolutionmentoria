@@ -2,7 +2,7 @@ import { useState, type FormEvent } from "react";
 import { useStore } from "../store";
 
 export function Profile() {
-  const { user, updateUser } = useStore();
+  const { user, updateUser, updatePassword } = useStore();
   const [name, setName] = useState(user?.name ?? "");
   const [city, setCity] = useState(user?.city ?? "");
   const [saved, setSaved] = useState(false);
@@ -16,11 +16,12 @@ export function Profile() {
     setSaved(true);
   };
 
-  const changePw = (e: FormEvent) => {
+  const changePw = async (e: FormEvent) => {
     e.preventDefault();
-    if (pw.current !== user.password) return setPwMsg({ ok: false, text: "A senha atual não confere." });
-    if (pw.next.length < 6) return setPwMsg({ ok: false, text: "A nova senha precisa ter pelo menos 6 caracteres." });
-    updateUser({ password: pw.next });
+    if (pw.next.length < 8) return setPwMsg({ ok: false, text: "A nova senha precisa ter pelo menos 8 caracteres." });
+    setPwMsg(null);
+    const r = await updatePassword(pw.current, pw.next);
+    if (!r.ok) return setPwMsg({ ok: false, text: r.message ?? "Não foi possível alterar a senha." });
     setPw({ current: "", next: "" });
     setPwMsg({ ok: true, text: "Senha alterada." });
   };
@@ -60,7 +61,7 @@ export function Profile() {
       <section className="settings-row">
         <div className="settings-label">
           <h2>Senha</h2>
-          <p className="muted">Use pelo menos 6 caracteres.</p>
+          <p className="muted">Use pelo menos 8 caracteres.</p>
         </div>
         <form className="settings-panel" onSubmit={changePw}>
           <label className="field">

@@ -5,6 +5,15 @@ description: Levar a plataforma Endo Evolution da demonstração (dados no naveg
 
 # Da demonstração para produção
 
+## Situação atual (20/11/2026)
+Feito: projeto Supabase `ENDOEVOLUTION` (ref gvqkdmbmuihcmpwikcgp) com tabelas e RLS (`supabase/migrations/`),
+seed de demonstração, login real, recuperação de senha, convite de aluno pela Edge Function `convidar-aluno`,
+todas as telas gravando no banco. Aplicar SQL: API de gerenciamento `POST /v1/projects/{ref}/database/query`
+ou SQL Editor do painel.
+
+Falta: SMTP próprio (Resend) para os e-mails, vídeos protegidos, pagamento, LGPD, desligar `VITE_DEMO_LOGIN`
+e rodar `supabase/remove-demo.sql`. O plano abaixo é o original e serve de referência para o que ainda falta.
+
 Hoje toda a persistência está em `src/store.tsx` (localStorage). As páginas só usam o hook `useStore()`,
 então a troca de backend acontece nesse arquivo, sem reescrever telas.
 

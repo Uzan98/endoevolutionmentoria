@@ -10,12 +10,23 @@ import { LessonPage } from "./pages/LessonPage";
 import { Meetings } from "./pages/Meetings";
 import { Profile } from "./pages/Profile";
 import { Admin } from "./pages/Admin";
+import { ResetPassword } from "./pages/ResetPassword";
 import { Forum } from "./pages/Forum";
 import { ForumThread } from "./pages/ForumThread";
 
+function Splash() {
+  return (
+    <div className="splash" role="status" aria-label="Carregando">
+      <span className="splash-mark" />
+    </div>
+  );
+}
+
 function RequireAuth({ children, role }: { children: ReactElement; role?: "mentor" }) {
-  const { user } = useStore();
+  const { user, status, recovering } = useStore();
   const loc = useLocation();
+  if (status === "loading") return <Splash />;
+  if (recovering) return <Navigate to="/redefinir-senha" replace />;
   if (!user) return <Navigate to="/login" replace state={{ from: loc.pathname }} />;
   if (role && user.role !== role) return <Navigate to="/" replace />;
   return children;
@@ -25,6 +36,7 @@ export function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/redefinir-senha" element={<ResetPassword />} />
       <Route element={<RequireAuth><Shell /></RequireAuth>}>
         <Route index element={<Home />} />
         <Route path="modulos" element={<Modules />} />

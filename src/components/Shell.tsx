@@ -6,7 +6,7 @@ import { meetingDate, plural, relativeDay } from "../lib/format";
 import { useOnline, usePWAInstall } from "../lib/pwa";
 
 export function Shell() {
-  const { user, logout, db, isDone } = useStore();
+  const { user, logout, db, isDone, error, clearError } = useStore();
   const [open, setOpen] = useState(false);
   const loc = useLocation();
   const nav = useNavigate();
@@ -80,8 +80,8 @@ export function Shell() {
       </div>
       <button
         className="nav-item nav-logout"
-        onClick={() => {
-          logout();
+        onClick={async () => {
+          await logout();
           nav("/login");
         }}
       >
@@ -113,7 +113,7 @@ export function Shell() {
       </header>
       {!online && (
         <p className="offline-bar" role="status">
-          Você está sem internet. O app continua funcionando, mas os vídeos precisam de conexão.
+          Você está sem internet. Conecte-se para ver as aulas e o fórum atualizados.
         </p>
       )}
       {open && (
@@ -122,6 +122,14 @@ export function Shell() {
             <Icon name="close" size={22} />
           </button>
           {side}
+        </div>
+      )}
+      {error && (
+        <div className="toast" role="alert">
+          <span>{error}</span>
+          <button className="icon-btn" aria-label="Fechar aviso" onClick={clearError}>
+            <Icon name="close" size={16} />
+          </button>
         </div>
       )}
       <main className="canvas">

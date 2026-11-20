@@ -9,7 +9,7 @@ npm install
 npm run dev
 ```
 
-Abra http://localhost:5173. Acessos de demonstração (senha `demo123`):
+Abra http://localhost:5173. O site já aponta para o Supabase do projeto (arquivo `.env`). Acessos de demonstração (senha `demo123`):
 
 | Perfil | E-mail |
 | --- | --- |
@@ -35,7 +35,7 @@ A tela de login tem botões que preenchem esses dados.
 - Alunos: progresso de cada aluno, cadastro de novos alunos.
 - Encontros: agendar e remover.
 - Fórum: contador no menu com as dúvidas que ainda não têm resposta do mentor; o mentor pode responder, marcar solução e moderar (excluir).
-- "Restaurar dados de demonstração" volta tudo ao estado inicial antes de uma apresentação.
+- Cadastrar aluno envia um convite por e-mail (função `convidar-aluno` no Supabase); o aluno cria a senha pelo link.
 
 ## App no celular (PWA)
 
@@ -49,20 +49,33 @@ A plataforma é um app instalável:
 
 Arquivos: `vite.config.ts` (manifesto e service worker via vite-plugin-pwa), `public/icons/`, `public/screenshots/`, `src/lib/pwa.ts`.
 
-## Limites desta versão (importante para a conversa com o cliente)
+## Banco de dados e login (Supabase)
 
-- **Os dados ficam no navegador** (localStorage). Cada computador tem sua própria cópia; o que o mentor cadastra não aparece no celular do aluno. Para produção, ver `.claude/skills/backend-producao`.
-- **Os vídeos de exemplo** são clipes de domínio público (CC0, MDN), não aulas reais. Troque pelo link de cada aula no painel do mentor.
-- **Os PDFs** em `public/materiais/` são de exemplo e precisam ser substituídos pelo material oficial.
-- Nomes de alunos, temas de aulas e encontros são conteúdo de exemplo para o cliente confirmar.
-- Senhas não são criptografadas (é só uma demonstração).
+A plataforma usa o Supabase (projeto `ENDOEVOLUTION`, região us-east-1) para login, banco e regras de segurança.
+
+- **Configuração:** `.env` tem a URL do projeto e a chave **pública** (publishable). A chave secreta nunca vai para o site.
+- **Estrutura do banco:** `supabase/migrations/` (tabelas e regras RLS: aluno só altera os próprios dados; só o mentor mexe no conteúdo; visitante sem login não vê nada além da vitrine de módulos).
+- **Função de servidor:** `supabase/functions/convidar-aluno/` (cadastro de aluno pelo mentor, com convite por e-mail).
+- **Conteúdo e contas de demonstração:** `supabase/seed.sql`, gerado por `npm run seed:gen` a partir de `src/data/`.
+- **Antes de uma apresentação:** rode `supabase/reset-demo-data.sql` no SQL Editor do Supabase para desfazer o que as contas de demonstração fizeram.
+- **Antes de liberar para alunos reais:** rode `supabase/remove-demo.sql` (apaga as contas de demonstração) e mude `VITE_DEMO_LOGIN=false` no `.env`.
+- **Cópia local:** o app guarda os dados da última visita no aparelho; abre na hora e funciona sem internet (só leitura). A cópia é apagada ao sair.
+
+## Antes de ir para produção (pendências)
+
+- **E-mails:** o envio padrão do Supabase só entrega para e-mails da equipe do projeto e tem limite de poucos e-mails por hora. Para convidar alunos reais e recuperar senha, configure um SMTP próprio (ex.: Resend) em Authentication → Emails.
+- **Vídeos:** os vídeos de exemplo são clipes de domínio público. Troque pelos links reais (de preferência Vimeo ou Panda Video, com proteção por domínio).
+- **Pagamento:** ainda não integrado (Stripe ou Hotmart/Kiwify liberando o acesso automaticamente).
+- **LGPD:** política de privacidade e termos de uso. Os dados ficam nos EUA (região do projeto); isso precisa constar na política.
+- **Contas no nome do cliente:** ver `.claude/skills/publicar-demo` e a conversa sobre transferência da Vercel e do Supabase.
 
 ## Estrutura
 
 ```
 src/
   data/seed.ts         conteúdo inicial: módulos, aulas, alunos, encontros
-  store.tsx            camada de dados (localStorage) — trocar por backend em produção
+  store.tsx            camada de dados (Supabase + cópia local para abrir rápido e offline)
+  lib/supabase.ts      cliente do Supabase
   lib/                 formatação (datas, durações) e leitura de links de vídeo
   components/          Shell (menu), VideoPlayer, LessonStrip (barra de aulas), ícones
   pages/               Login, Home, Modules, ModulePage, LessonPage, Meetings, Profile, Admin

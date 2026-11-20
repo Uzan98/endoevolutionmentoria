@@ -31,7 +31,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  password: string;
+  password?: string; // só nas contas de demonstração (seed)
   role: Role;
   /** Para a saudação: "Bem-vinda" (f) ou "Bem-vindo" (m). */
   genero?: "f" | "m";

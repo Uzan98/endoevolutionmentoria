@@ -11,7 +11,7 @@ type Editing = { kind: "module"; data: Module } | { kind: "lesson"; moduleId: st
 
 export function Admin() {
   const [tab, setTab] = useState<Tab>("conteudo");
-  const { db, allLessons, resetDemo } = useStore();
+  const { db, allLessons } = useStore();
   const students = db.users.filter((u) => u.role === "aluno");
   const tabs: { id: Tab; label: string; count: number }[] = [
     { id: "conteudo", label: "Conteúdo", count: allLessons.length },
@@ -29,14 +29,6 @@ export function Admin() {
             {plural(students.length, "aluno", "alunos")}
           </p>
         </div>
-        <button
-          className="btn btn-ghost"
-          onClick={() => {
-            if (confirm("Restaurar todo o conteúdo de demonstração? As alterações feitas serão perdidas.")) resetDemo();
-          }}
-        >
-          Restaurar dados de demonstração
-        </button>
       </header>
 
       <div className="tabs" role="tablist" aria-label="Seções do painel">
@@ -250,6 +242,8 @@ function StudentsTab() {
   const { db, allLessons, isDone, addStudent } = useStore();
   const [adding, setAdding] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", city: "" });
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
   const students = db.users.filter((u) => u.role === "aluno");
   const rows = students.map((s) => {
     const doneIds = allLessons.filter((l) => isDone(l.id, s.id));
@@ -257,22 +251,31 @@ function StudentsTab() {
     return { s, done: doneIds.length, last: dates[dates.length - 1] };
   });
 
-  const submit = (e: FormEvent) => {
+  const submit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!form.name.trim() || !form.email.trim()) return;
-    addStudent({ name: form.name.trim(), email: form.email.trim(), city: form.city.trim() });
+    if (!form.name.trim() || !form.email.includes("@")) return setMsg({ ok: false, text: "Preencha o nome e um e-mail válido." });
+    setBusy(true);
+    const res = await addStudent({ name: form.name.trim(), email: form.email.trim(), city: form.city.trim() });
+    setBusy(false);
+    if (!res.ok) return setMsg({ ok: false, text: res.message ?? "Não foi possível cadastrar." });
     setForm({ name: "", email: "", city: "" });
     setAdding(false);
+    setMsg({ ok: true, text: res.message ?? "Aluno cadastrado. O convite foi enviado por e-mail." });
   };
 
   return (
     <section className="block">
       <div className="block-head">
         <h2 className="panel-title">Alunos da turma</h2>
-        <button className="btn btn-primary" onClick={() => setAdding(true)}>
+        <button className="btn btn-primary" onClick={() => (setAdding(true), setMsg(null))}>
           <Icon name="plus" /> Cadastrar aluno
         </button>
       </div>
+      {msg && !adding && (
+        <p className={msg.ok ? "form-ok" : "form-error"} role="status">
+          {msg.text}
+        </p>
+      )}
       <div className="table-wrap">
         <table className="table">
           <thead>
@@ -318,15 +321,22 @@ function StudentsTab() {
             <label className="field">
               <span>E-mail</span>
               <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required aria-describedby="pw-hint" />
-              <small id="pw-hint" className="caption">O aluno entra com este e-mail e a senha inicial demo123.</small>
+              <small id="pw-hint" className="caption">O aluno recebe um e-mail com o link para criar a senha e entrar.</small>
             </label>
             <label className="field">
               <span>Cidade</span>
               <input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
             </label>
+            {msg && !msg.ok && (
+              <p className="form-error" role="alert">
+                {msg.text}
+              </p>
+            )}
             <div className="row-gap end">
               <button type="button" className="btn btn-ghost" onClick={() => setAdding(false)}>Cancelar</button>
-              <button type="submit" className="btn btn-primary">Cadastrar</button>
+              <button type="submit" className="btn btn-primary" disabled={busy}>
+                {busy ? "Enviando convite…" : "Cadastrar e enviar convite"}
+              </button>
             </div>
           </form>
         </Dialog>

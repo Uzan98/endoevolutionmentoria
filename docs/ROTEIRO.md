@@ -30,7 +30,7 @@ Como a plataforma foi construída, passo a passo, com a skill usada em cada etap
 | Passo | O que fazer | Skill |
 | --- | --- | --- |
 | 1. Conteúdo real | Receber do cliente: lista de módulos e aulas, links dos vídeos, PDFs, logo e cores. | `adicionar-conteudo` |
-| 2. Backend | Autenticação real, banco de dados e armazenamento (sugestão: Supabase). | `backend-producao` |
+| 2. Backend | **Feito:** Supabase com login real, banco, regras de segurança, convite de aluno e recuperação de senha. 19 testes de ponta a ponta com o banco real. | `backend-producao` |
 | 3. Vídeos protegidos | Vimeo (privacidade por domínio) ou Panda Video / Bunny Stream para impedir download e compartilhamento. | `backend-producao` |
 | 4. Publicação | Domínio próprio (ex.: membros.endoevolution.com.br) na Vercel. | `publicar-demo` |
 | 5. Extras | Certificado de conclusão, liberação gradual de módulos, comentários por aula, e-mails de boas-vindas, integração com checkout (Hotmart/Kiwify). | — |

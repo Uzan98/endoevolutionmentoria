@@ -935,10 +935,15 @@ button { cursor: pointer; }
   .offline-bar ~ .canvas .chat { height: calc(var(--vvh, 100dvh) - 96px - env(safe-area-inset-top) - 65px - env(safe-area-inset-bottom) - 24px); }
   /* teclado aberto (medido depois que ele abriu): esconde as abas e o chat ocupa a área visível */
   .kbd-open .tabbar { display: none; }
-  .kbd-open .chat { height: calc(var(--vvh, 100dvh) - 60px - env(safe-area-inset-top) - 16px); margin-bottom: 4px; }
+  .kbd-open .chat {
+    position: fixed; z-index: 25; left: 0; right: 0; top: var(--vv-top, 0px); height: var(--vvh, 100dvh); margin: 0; border-radius: 0;
+    padding-top: env(safe-area-inset-top);
+  }
+  .kbd-open .chat .convo-compose { padding-bottom: 8px; }
 }
 @media (max-width: 760px) {
-  .chat-split { grid-template-columns: 1fr; }
+  .chat-split { grid-template-columns: minmax(0, 1fr); }
+  .chat-list, .chat-pane { min-width: 0; }
   .chat-split .chat-list { border-right: 0; }
   .chat-split .chat-pane { display: none; }
   .has-open .chat-split .chat-list { display: none; }

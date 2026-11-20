@@ -163,18 +163,15 @@ export function trackKeyboard() {
     full = Math.max(full, vv.height);
     const open = vv.height < full * 0.8;
     root.style.setProperty("--vvh", `${Math.round(vv.height)}px`);
+    // o Safari desloca a área visível ao abrir o teclado: o chat acompanha esse deslocamento
+    root.style.setProperty("--vv-top", `${Math.round(vv.offsetTop)}px`);
     root.classList.toggle("kbd-open", open);
-    if (open) {
-      // o iPhone desloca a página ao abrir o teclado; mantemos o topo no lugar e o campo à vista
-      window.scrollTo(0, 0);
-      const el = document.activeElement as HTMLElement | null;
-      if (el && /^(TEXTAREA|INPUT)$/.test(el.tagName)) el.scrollIntoView({ block: "nearest" });
-    }
   };
   const schedule = () => {
     if (!raf) raf = requestAnimationFrame(apply);
   };
   vv.addEventListener("resize", schedule);
+  vv.addEventListener("scroll", schedule);
   window.addEventListener("orientationchange", () => {
     full = 0; // nova orientação: mede de novo
     setTimeout(schedule, 300);

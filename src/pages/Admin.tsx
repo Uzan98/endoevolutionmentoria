@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { Link } from "react-router-dom";
 import { Dialog } from "../components/Dialog";
 import { Icon } from "../components/Icon";
 import { VideoPlayer } from "../components/VideoPlayer";
@@ -285,6 +286,7 @@ function StudentsTab() {
               <th className="r">Aulas concluídas</th>
               <th className="r">Progresso</th>
               <th className="r">Última aula concluída</th>
+              <th className="r"><span className="sr-only">Mensagem</span></th>
             </tr>
           </thead>
           <tbody>
@@ -305,6 +307,11 @@ function StudentsTab() {
                     <span className="num">{pct}%</span>
                   </td>
                   <td className="r num">{last ? new Date(last).toLocaleDateString("pt-BR") : <span className="faint">—</span>}</td>
+                  <td className="r">
+                    <Link to={`/mensagens?aluno=${s.id}`} className="icon-btn" aria-label={`Enviar mensagem para ${s.name}`} title="Enviar mensagem">
+                      <Icon name="chat" size={18} />
+                    </Link>
+                  </td>
                 </tr>
               );
             })}

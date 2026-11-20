@@ -3,6 +3,7 @@
 import { writeFileSync } from "node:fs";
 import { seedCompleted, seedMeetings, seedModules, seedNotes, seedUsers } from "../src/data/seed";
 import { seedForum } from "../src/data/forum";
+import { seedChat } from "../src/data/chat";
 
 const q = (v: string | null | undefined) => (v == null ? "null" : `'${String(v).replace(/'/g, "''")}'`);
 // ids fixos para as contas de demonstração
@@ -65,6 +66,17 @@ for (const t of threads) {
 }
 for (const r of replies) for (const v of r.votes) out.push(`insert into public.reply_votes (reply_id, user_id) values (${q(r.id)}, ${U(v)}) on conflict do nothing;`);
 
+// chat com o mentor (conversas de exemplo, com datas passadas; ids fixos para não duplicar)
+seedChat.forEach((m, i) =>
+  out.push(
+    `insert into public.messages (id, student_id, sender_id, body, created_at) values ('00000000-0000-4000-b000-${String(i + 1).padStart(12, "0")}', ${U(m.studentId)}, ${U(m.senderId)}, ${q(m.body)}, now() - interval '${Math.round(m.hoursAgo * 60)} minutes') on conflict (id) do nothing;`,
+  ),
+);
+// a aluna e o mentor já leram a conversa da Camila; a mensagem do Rafael está sem resposta
+out.push(
+  `insert into public.chat_reads (user_id, student_id, last_read_at) values (${U("u-camila")}, ${U("u-camila")}, now() - interval '25 hours'), (${U("u-mentor")}, ${U("u-camila")}, now() - interval '25 hours'), (${U("u-mentor")}, ${U("u-juliana")}, now() - interval '49 hours'), (${U("u-juliana")}, ${U("u-juliana")}, now() - interval '48 hours') on conflict (user_id, student_id) do update set last_read_at = excluded.last_read_at;`,
+);
+
 out.push("commit;");
 writeFileSync("supabase/seed.sql", out.join("\n") + "\n");
 
@@ -83,7 +95,7 @@ const demoIds = seedUsers.map((u) => U(u.id)).join(", ");
 writeFileSync(
   "supabase/reset-demo-data.sql",
   [
-    "-- Desfaz o que as contas de DEMONSTRAÇÃO fizeram (progresso, anotações, fórum) e reaplica o seed.",
+    "-- Desfaz o que as contas de DEMONSTRAÇÃO fizeram (progresso, anotações, fórum, chat) e reaplica o seed.",
     "-- Não toca em contas reais nem no conteúdo (módulos e aulas).",
     "begin;",
     `delete from public.threads where author_id in (${demoIds});`,
@@ -92,6 +104,8 @@ writeFileSync(
     `delete from public.reply_votes where user_id in (${demoIds});`,
     `delete from public.progress where user_id in (${demoIds});`,
     `delete from public.notes where user_id in (${demoIds});`,
+    `delete from public.messages where student_id in (${demoIds});`,
+    `delete from public.chat_reads where user_id in (${demoIds}) or student_id in (${demoIds});`,
     `update public.profiles set last_lesson_id = null where id in (${demoIds});`,
     "commit;",
     "",

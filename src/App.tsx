@@ -13,6 +13,8 @@ import { Admin } from "./pages/Admin";
 import { ResetPassword } from "./pages/ResetPassword";
 import { Forum } from "./pages/Forum";
 import { ForumThread } from "./pages/ForumThread";
+import { Messages } from "./pages/Messages";
+import { ChatProvider } from "./chat";
 
 function Splash() {
   return (
@@ -37,7 +39,7 @@ export function App() {
     <Routes>
       <Route path="/login" element={<Login />} />
       <Route path="/redefinir-senha" element={<ResetPassword />} />
-      <Route element={<RequireAuth><Shell /></RequireAuth>}>
+      <Route element={<RequireAuth><ChatProvider><Shell /></ChatProvider></RequireAuth>}>
         <Route index element={<Home />} />
         <Route path="modulos" element={<Modules />} />
         <Route path="modulos/:moduleId" element={<ModulePage />} />
@@ -45,6 +47,7 @@ export function App() {
         <Route path="encontros" element={<Meetings />} />
         <Route path="forum" element={<Forum />} />
         <Route path="forum/:threadId" element={<ForumThread />} />
+        <Route path="mensagens" element={<Messages />} />
         <Route path="perfil" element={<Profile />} />
         <Route path="admin" element={<RequireAuth role="mentor"><Admin /></RequireAuth>} />
         <Route path="*" element={<div className="page"><h1 className="title">Página não encontrada</h1></div>} />

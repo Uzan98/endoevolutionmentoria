@@ -27,6 +27,7 @@ A tela de login tem botões que preenchem esses dados.
 - Página da aula: player (YouTube, Vimeo ou .mp4), marcar como concluída (automático ao fim de um .mp4), próxima aula, materiais em PDF, anotações pessoais.
 - Encontros ao vivo: agenda com link da sala.
 - Fórum de dúvidas: perguntas por módulo/aula, busca, filtros (sem resposta, resolvidas, minhas), respostas com destaque para o mentor, "marcar como solução", votos e notificação quando alguém responde. Cada aula mostra as dúvidas ligadas a ela.
+- Falar com o mentor (`/mensagens`): chat em tempo real com a equipe, com "digitando…", "online agora", "Visto", contador de não lidas no menu, aviso na tela e no sino quando chega mensagem.
 - Meu perfil: dados pessoais e troca de senha.
 - Layout próprio para celular (menu em tela cheia).
 
@@ -35,6 +36,7 @@ A tela de login tem botões que preenchem esses dados.
 - Alunos: progresso de cada aluno, cadastro de novos alunos.
 - Encontros: agendar e remover.
 - Fórum: contador no menu com as dúvidas que ainda não têm resposta do mentor; o mentor pode responder, marcar solução e moderar (excluir).
+- Mensagens: caixa de entrada com uma conversa por aluno (as que aguardam resposta ficam no topo), busca por nome e atalho "Enviar mensagem" na lista de alunos.
 - Cadastrar aluno envia um convite por e-mail (função `convidar-aluno` no Supabase); o aluno cria a senha pelo link.
 
 ## Modo escuro
@@ -42,6 +44,14 @@ A tela de login tem botões que preenchem esses dados.
 - Por padrão segue o modo do aparelho ("Sistema"). O botão de lua/sol na barra do topo alterna na hora, e **Meu perfil → Aparência** tem Sistema / Claro / Escuro (a escolha fica salva no navegador).
 - O tema é aplicado por um script no `index.html` antes da tela aparecer (sem piscar branco).
 - Cores: variáveis no `:root` de `src/styles.css`; a paleta escura fica no bloco `:root[data-theme="dark"]`. Áreas que já são escuras nos dois modos (menu lateral, card da aula, login) usam `--mint-brand`.
+
+## Chat com o mentor (Supabase Realtime)
+
+- **Banco:** `supabase/migrations/20261120000004_chat.sql` e `..._05_chat_server_time.sql`. Tabela `messages` (uma conversa por aluno; mensagens não podem ser editadas nem apagadas pela API; remetente e horário definidos pelo servidor) e `chat_reads` (até onde cada pessoa leu, para não lidas e "Visto").
+- **Regras:** o aluno só lê e escreve na própria conversa; o mentor vê e responde todas. Testado pela API: outro aluno não lê, não escreve e não marca leitura na conversa alheia; visitante sem login não vê nada.
+- **Tempo real:** mensagens e leituras chegam por Postgres Changes (o Realtime aplica as mesmas regras do banco). "Digitando…" e presença usam canais privados (`chat:<id do aluno>` e `equipe-online`), com regras em `realtime.messages`. Ao reconectar ou voltar para o app, a conversa é buscada de novo, então nada se perde se a internet cair.
+- **Código:** `src/chat.tsx` (conexão e estado) e `src/pages/Messages.tsx` (tela). Links nas mensagens só viram link se forem `http(s)`.
+- **Limites do plano gratuito:** 200 conexões simultâneas e 2 milhões de mensagens Realtime por mês, folgado para uma turma de mentoria.
 
 ## App no celular (PWA)
 

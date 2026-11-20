@@ -62,3 +62,30 @@ export const initials = (name: string) =>
     .map((p) => p[0])
     .slice(0, 2)
     .join("");
+
+const hourMin = new Intl.DateTimeFormat("pt-BR", { hour: "2-digit", minute: "2-digit" });
+const dayLong = new Intl.DateTimeFormat("pt-BR", { day: "numeric", month: "long" });
+const dayLongYear = new Intl.DateTimeFormat("pt-BR", { day: "numeric", month: "long", year: "numeric" });
+
+/** "14:32" */
+export const clock = (iso: string) => hourMin.format(new Date(iso));
+
+const dayStart = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+
+/** Separador de dia no chat: "Hoje", "Ontem", "18 de novembro". */
+export function dayLabel(iso: string): string {
+  const d = new Date(iso);
+  const diff = Math.round((dayStart(new Date()) - dayStart(d)) / 86400000);
+  if (diff === 0) return "Hoje";
+  if (diff === 1) return "Ontem";
+  return (d.getFullYear() === new Date().getFullYear() ? dayLong : dayLongYear).format(d);
+}
+
+/** Horário curto para listas de conversa: "14:32", "ontem", "18/11". */
+export function listTime(iso: string): string {
+  const d = new Date(iso);
+  const diff = Math.round((dayStart(new Date()) - dayStart(d)) / 86400000);
+  if (diff === 0) return clock(iso);
+  if (diff === 1) return "ontem";
+  return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+}

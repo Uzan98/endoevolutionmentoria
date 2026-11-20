@@ -5,14 +5,41 @@ import { Icon, ToothLogo } from "./Icon";
 import { meetingDate, plural, relativeDay } from "../lib/format";
 import { useOnline, usePWAInstall } from "../lib/pwa";
 import { useTheme } from "../lib/theme";
+import { useChat } from "../chat";
 
 export function Shell() {
   const { user, logout, db, isDone, error, clearError } = useStore();
+  const chat = useChat();
   const [open, setOpen] = useState(false);
   const loc = useLocation();
   const nav = useNavigate();
   const online = useOnline();
   const pwa = usePWAInstall();
+
+  // Mensagem nova fora da página de mensagens: aviso rápido com atalho para a conversa.
+  const [incoming, setIncoming] = useState<{ id: string; from: string; to: string; body: string } | null>(null);
+  const lastSeen = useRef<string | null | undefined>(undefined);
+  const newest = chat.messages.at(-1);
+  useEffect(() => {
+    if (!chat.ready || !user) return;
+    if (lastSeen.current === undefined) {
+      lastSeen.current = newest?.id ?? null; // o que já estava lá ao abrir não é novidade
+      return;
+    }
+    if (!newest || newest.id === lastSeen.current) return;
+    lastSeen.current = newest.id;
+    if (newest.senderId === user.id || newest.state || loc.pathname === "/mensagens") return;
+    const from = db.users.find((u) => u.id === newest.senderId)?.name ?? "Equipe Endo Evolution";
+    setIncoming({ id: newest.id, from, body: newest.body, to: user.role === "mentor" ? `/mensagens?aluno=${newest.studentId}` : "/mensagens" });
+  }, [chat.ready, newest, user, loc.pathname, db.users]);
+  useEffect(() => {
+    if (!incoming) return;
+    const t = window.setTimeout(() => setIncoming(null), 7000);
+    return () => window.clearTimeout(t);
+  }, [incoming]);
+  useEffect(() => {
+    if (loc.pathname === "/mensagens") setIncoming(null);
+  }, [loc.pathname]);
 
   // Ao trocar de página: fecha o menu do celular e volta ao topo.
   // (corpo com chaves: scrollTo pode retornar uma Promise, que o React trataria como cleanup)
@@ -27,6 +54,7 @@ export function Shell() {
     { to: "/modulos", label: "Módulos", icon: "modules" },
     { to: "/encontros", label: "Encontros ao vivo", icon: "live" },
     { to: "/forum", label: "Fórum", icon: "forum" },
+    { to: "/mensagens", label: user.role === "mentor" ? "Mensagens" : "Falar com o mentor", icon: "chat" },
     { to: "/perfil", label: "Meu perfil", icon: "user" },
   ];
 
@@ -62,6 +90,9 @@ export function Shell() {
             <Icon name={l.icon} size={20} /> {l.label}
             {l.to === "/forum" && user.role === "mentor" && waiting > 0 && (
               <span className="nav-badge" aria-label={`${waiting} sem resposta do mentor`}>{waiting}</span>
+            )}
+            {l.to === "/mensagens" && chat.totalUnread > 0 && (
+              <span className="nav-badge" aria-label={`${chat.totalUnread} mensagens não lidas`}>{chat.totalUnread}</span>
             )}
           </NavLink>
         ))}
@@ -133,6 +164,20 @@ export function Shell() {
           </button>
         </div>
       )}
+      {incoming && !error && (
+        <div className="toast toast-chat" role="status">
+          <Link to={incoming.to} className="toast-chat-link" onClick={() => setIncoming(null)}>
+            <Icon name="chat" size={18} />
+            <span>
+              <strong>{incoming.from}</strong>
+              <span>{incoming.body.length > 90 ? `${incoming.body.slice(0, 90)}…` : incoming.body}</span>
+            </span>
+          </Link>
+          <button className="icon-btn" aria-label="Fechar aviso" onClick={() => setIncoming(null)}>
+            <Icon name="close" size={16} />
+          </button>
+        </div>
+      )}
       <main className="canvas">
         <TopActions variant="float" />
         <Outlet />
@@ -142,12 +187,15 @@ export function Shell() {
           { to: "/", label: "Início", icon: "home", end: true },
           { to: "/modulos", label: "Módulos", icon: "modules" },
           { to: "/forum", label: "Fórum", icon: "forum" },
-          { to: "/encontros", label: "Encontros", icon: "live" },
+          { to: "/mensagens", label: "Mensagens", icon: "chat" },
         ].map((t) => (
           <NavLink key={t.to} to={t.to} end={t.end} className="tab-item">
             <span className="tab-icon">
               <Icon name={t.icon} size={22} />
               {t.to === "/forum" && user.role === "mentor" && waiting > 0 && <span className="tab-badge">{waiting}</span>}
+              {t.to === "/mensagens" && chat.totalUnread > 0 && (
+                <span className="tab-badge" aria-label={`${chat.totalUnread} não lidas`}>{chat.totalUnread}</span>
+              )}
             </span>
             {t.label}
           </NavLink>
@@ -166,6 +214,7 @@ export function Shell() {
 /** Busca de aulas e notificações, no canto superior direito. */
 function TopActions({ variant }: { variant: "bar" | "float" }) {
   const { db, user } = useStore();
+  const chat = useChat();
   const theme = useTheme();
   const [panel, setPanel] = useState<"search" | "bell" | null>(null);
   const [q, setQ] = useState("");
@@ -203,7 +252,14 @@ function TopActions({ variant }: { variant: "bar" | "float" }) {
         .sort((a, b) => b.r.createdAt.localeCompare(a.r.createdAt))
         .slice(0, 3)
     : [];
-  const hasNews = upcoming.length > 0 || answers.length > 0;
+  // Mensagens não lidas: o aluno tem uma conversa; o mentor, uma por aluno.
+  const unreadChats = user
+    ? (user.role === "mentor" ? db.users.filter((u) => u.role !== "mentor").map((u) => u.id) : [user.id])
+        .map((id) => ({ id, n: chat.unread(id), name: db.users.find((u) => u.id === id)?.name ?? "" }))
+        .filter((x) => x.n > 0)
+        .slice(0, 3)
+    : [];
+  const hasNews = upcoming.length > 0 || answers.length > 0 || unreadChats.length > 0;
 
   return (
     <div className={`top-actions top-actions-${variant}`} ref={ref}>
@@ -245,6 +301,14 @@ function TopActions({ variant }: { variant: "bar" | "float" }) {
         <div className="popover" role="dialog" aria-label="Notificações">
           <p className="pop-title">Notificações</p>
           <ul className="pop-list">
+            {unreadChats.map((c) => (
+              <li key={`chat-${c.id}`}>
+                <Link to={user?.role === "mentor" ? `/mensagens?aluno=${c.id}` : "/mensagens"} className="pop-item">
+                  <strong>{c.n === 1 ? "Nova mensagem" : `${c.n} mensagens novas`}</strong>
+                  <span>{user?.role === "mentor" ? `De ${c.name}` : "Da equipe Endo Evolution"}</span>
+                </Link>
+              </li>
+            ))}
             {answers.map(({ r, t }) => (
               <li key={r.id}>
                 <Link to={`/forum/${t!.id}`} className="pop-item">

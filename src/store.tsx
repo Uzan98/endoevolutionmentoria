@@ -84,7 +84,8 @@ function friendly(msg: string): string {
   if (/email not confirmed/i.test(msg)) return "Confirme seu e-mail pelo link que enviamos antes de entrar.";
   if (/rate limit|too many/i.test(msg)) return "Muitas tentativas seguidas. Aguarde alguns minutos e tente de novo.";
   if (/network|fetch/i.test(msg)) return "Sem conexão com o servidor. Verifique sua internet.";
-  if (/password should be at least/i.test(msg)) return "A senha precisa ter pelo menos 6 caracteres.";
+  if (/password should be at least/i.test(msg)) return "A senha precisa ter pelo menos 8 caracteres.";
+  if (/pwned|leaked|compromised/i.test(msg)) return "Essa senha apareceu em vazamentos conhecidos. Escolha outra.";
   if (/same.*password|different from the old/i.test(msg)) return "A nova senha precisa ser diferente da atual.";
   return "Não foi possível concluir. Tente de novo em instantes.";
 }

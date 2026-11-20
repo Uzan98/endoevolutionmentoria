@@ -54,7 +54,7 @@ Arquivos: `vite.config.ts` (manifesto e service worker via vite-plugin-pwa), `pu
 A plataforma usa o Supabase (projeto `ENDOEVOLUTION`, região us-east-1) para login, banco e regras de segurança.
 
 - **Configuração:** `.env` tem a URL do projeto e a chave **pública** (publishable). A chave secreta nunca vai para o site.
-- **Estrutura do banco:** `supabase/migrations/` (tabelas e regras RLS: aluno só altera os próprios dados; só o mentor mexe no conteúdo; visitante sem login não vê nada além da vitrine de módulos).
+- **Estrutura do banco:** `supabase/migrations/` (tabelas e regras RLS: aluno só altera os próprios dados; só o mentor mexe no conteúdo; visitante sem login não vê nada além da vitrine de módulos). Funções auxiliares ficam no esquema `private`, fora da API. Security Advisor sem alertas, exceto a proteção contra senhas vazadas, que exige o plano Pro (ligar em Authentication → Policies ao migrar).
 - **Função de servidor:** `supabase/functions/convidar-aluno/` (cadastro de aluno pelo mentor, com convite por e-mail).
 - **Conteúdo e contas de demonstração:** `supabase/seed.sql`, gerado por `npm run seed:gen` a partir de `src/data/`.
 - **Antes de uma apresentação:** rode `supabase/reset-demo-data.sql` no SQL Editor do Supabase para desfazer o que as contas de demonstração fizeram.

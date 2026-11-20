@@ -23,6 +23,7 @@ export function Login() {
     supabase
       .from("catalog")
       .select("id, title, lessons")
+      .order("position")
       .then(({ data }) => setCatalog(data ?? []));
   }, []);
 

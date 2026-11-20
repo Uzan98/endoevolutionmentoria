@@ -3,7 +3,7 @@ import { Icon } from "../components/Icon";
 import { ToothArt } from "../components/ToothArt";
 import { InstallCard } from "../components/InstallCard";
 import { moduleProgress, useStore } from "../store";
-import { duration, firstName, meetingDate, relativeDay, shortDate } from "../lib/format";
+import { duration, firstName, greeting, meetingDate, plural, relativeDay, shortDate } from "../lib/format";
 
 const weekdayShort = (iso: string) => new Intl.DateTimeFormat("pt-BR", { weekday: "short" }).format(new Date(iso)).replace(".", "").toUpperCase();
 const ddmm = (iso: string) => new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "2-digit" }).format(new Date(iso));
@@ -46,7 +46,15 @@ export function Home() {
     .slice(-2)
     .reverse();
 
-  const welcome = user.genero === "f" ? "Bem-vinda de volta," : user.genero === "m" ? "Bem-vindo de volta," : "Boas-vindas,";
+  const today = new Intl.DateTimeFormat("pt-BR", { weekday: "long", day: "numeric", month: "long" }).format(new Date());
+  const remaining = current ? current.lessons.filter((l) => !isDone(l.id)).length : 0;
+  const subtitle =
+    user.role === "mentor"
+      ? "Você está vendo a área do aluno como mentor."
+      : current
+        ? `${remaining === 1 ? "Falta" : "Faltam"} ${plural(remaining, "aula", "aulas")} para você concluir o módulo ${currentIdx + 1}.` +
+          (upcoming[0] ? ` Próximo encontro ao vivo ${relativeDay(upcoming[0].startsAt)}.` : "")
+        : "Você concluiu todas as aulas da mentoria. Parabéns!";
   const cheer =
     pct >= 100
       ? { title: "Mentoria concluída!", text: "Você assistiu a todas as aulas. Agora é levar tudo para a clínica." }
@@ -56,17 +64,17 @@ export function Home() {
 
   return (
     <div className="page page-home">
-      <ToothArt variant="light" className="home-art" />
-
-      <header className="hello">
-        <p className="eyebrow">{welcome}</p>
-        <h1>
-          {firstName(user.name)}! <span className="wave" aria-hidden="true">👋</span>
-        </h1>
-        <p className="hello-sub">
-          {user.role === "mentor" ? "Você está vendo a área do aluno como mentor." : "Continue sua jornada rumo à excelência em Endodontia."}
-        </p>
-      </header>
+      <div className="hello-row">
+        <header className="hello">
+          <p className="eyebrow">{today}</p>
+          <h1>
+            {greeting()}
+            <span className="punct">,</span> {firstName(user.name)}
+          </h1>
+          <p className="hello-sub">{subtitle}</p>
+        </header>
+        {user.role !== "mentor" && <Journey pct={pct} currentIdx={currentIdx} />}
+      </div>
 
       <InstallCard />
 
@@ -266,5 +274,53 @@ function NotepadArt() {
       <path d="M104 14l8 8-28 28-11 3 3-11 28-28Z" fill="#126F65" />
       <path d="M100 18l8 8" stroke="#BDEDE0" strokeWidth="2" />
     </svg>
+  );
+}
+
+/** A mentoria como um caminho: um ponto por módulo, com "você está aqui" no atual. */
+function Journey({ pct, currentIdx }: { pct: number; currentIdx: number }) {
+  const { db, isDone } = useStore();
+  const current = db.modules[currentIdx];
+  const cur = current ? moduleProgress(current, isDone) : null;
+  return (
+    <section className="journey card" aria-label="Sua jornada na mentoria">
+      <div className="journey-head">
+        <p className="journey-label">Sua jornada na mentoria</p>
+        <p className="journey-pct">
+          <strong>{pct}%</strong> concluída
+        </p>
+      </div>
+      <ol className="journey-track">
+        {db.modules.map((m, i) => {
+          const p = moduleProgress(m, isDone);
+          const state = p.total && p.done === p.total ? "done" : i === currentIdx ? "current" : "todo";
+          const label = state === "done" ? "concluído" : state === "current" ? `em andamento, ${p.done} de ${p.total} aulas` : "a seguir";
+          return (
+            <li
+              key={m.id}
+              className={`journey-step is-${state}`}
+              style={{ ["--p" as string]: `${p.total ? Math.round((p.done / p.total) * 100) : 0}%` }}
+            >
+              <Link to={`/modulos/${m.id}`} className="journey-node" title={m.title} aria-label={`Módulo ${i + 1}: ${m.title}, ${label}`}>
+                {state === "done" ? <Icon name="check" size={16} /> : i + 1}
+              </Link>
+            </li>
+          );
+        })}
+      </ol>
+      {current && cur ? (
+        <p className="journey-now">
+          <span className="journey-here">Você está aqui</span>
+          <span>
+            <strong>Módulo {currentIdx + 1}</strong> · {current.title} · {cur.done} de {cur.total} aulas
+          </span>
+        </p>
+      ) : (
+        <p className="journey-now">
+          <span className="journey-here">Concluída</span>
+          <span>Todos os módulos finalizados.</span>
+        </p>
+      )}
+    </section>
   );
 }

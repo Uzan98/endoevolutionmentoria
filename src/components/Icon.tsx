@@ -33,6 +33,9 @@ const paths: Record<string, string> = {
   vote: "M6 15l6-6 6 6",
   solved: "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM8 12.5l2.7 2.7L16 9.8",
   reply: "M10 8 4 13l6 5M4 13h10a6 6 0 0 1 6 6",
+  moon: "M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z",
+  sun: "M12 16.5a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4",
+  monitor: "M3.5 5h17v11h-17zM9 20h6M12 16v4",
 };
 
 const filled = new Set(["play", "bolt"]);

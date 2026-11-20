@@ -37,6 +37,12 @@ A tela de login tem botões que preenchem esses dados.
 - Fórum: contador no menu com as dúvidas que ainda não têm resposta do mentor; o mentor pode responder, marcar solução e moderar (excluir).
 - Cadastrar aluno envia um convite por e-mail (função `convidar-aluno` no Supabase); o aluno cria a senha pelo link.
 
+## Modo escuro
+
+- Por padrão segue o modo do aparelho ("Sistema"). O botão de lua/sol na barra do topo alterna na hora, e **Meu perfil → Aparência** tem Sistema / Claro / Escuro (a escolha fica salva no navegador).
+- O tema é aplicado por um script no `index.html` antes da tela aparecer (sem piscar branco).
+- Cores: variáveis no `:root` de `src/styles.css`; a paleta escura fica no bloco `:root[data-theme="dark"]`. Áreas que já são escuras nos dois modos (menu lateral, card da aula, login) usam `--mint-brand`.
+
 ## App no celular (PWA)
 
 A plataforma é um app instalável:

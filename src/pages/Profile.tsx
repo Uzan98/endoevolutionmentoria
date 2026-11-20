@@ -1,8 +1,16 @@
 import { useState, type FormEvent } from "react";
 import { useStore } from "../store";
+import { useTheme, type ThemeChoice } from "../lib/theme";
+import { Icon } from "../components/Icon";
 
 export function Profile() {
   const { user, updateUser, updatePassword } = useStore();
+  const theme = useTheme();
+  const themeOptions: { id: ThemeChoice; label: string; icon: string }[] = [
+    { id: "system", label: "Sistema", icon: "monitor" },
+    { id: "light", label: "Claro", icon: "sun" },
+    { id: "dark", label: "Escuro", icon: "moon" },
+  ];
   const [name, setName] = useState(user?.name ?? "");
   const [city, setCity] = useState(user?.city ?? "");
   const [saved, setSaved] = useState(false);
@@ -77,6 +85,21 @@ export function Profile() {
             {pwMsg && <span className={pwMsg.ok ? "caption" : "form-error"} role="status">{pwMsg.text}</span>}
           </div>
         </form>
+      </section>
+      <section className="settings-row">
+        <div className="settings-label">
+          <h2>Aparência</h2>
+          <p className="muted">“Sistema” acompanha o modo claro ou escuro do seu celular ou computador.</p>
+        </div>
+        <div className="settings-panel">
+          <div className="theme-switch" role="group" aria-label="Tema">
+            {themeOptions.map((o) => (
+              <button key={o.id} type="button" aria-pressed={theme.choice === o.id} onClick={() => theme.setTheme(o.id)}>
+                <Icon name={o.icon} size={16} /> {o.label}
+              </button>
+            ))}
+          </div>
+        </div>
       </section>
     </div>
   );

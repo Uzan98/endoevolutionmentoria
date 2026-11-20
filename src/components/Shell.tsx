@@ -4,6 +4,7 @@ import { useStore } from "../store";
 import { Icon, ToothLogo } from "./Icon";
 import { meetingDate, plural, relativeDay } from "../lib/format";
 import { useOnline, usePWAInstall } from "../lib/pwa";
+import { useTheme } from "../lib/theme";
 
 export function Shell() {
   const { user, logout, db, isDone, error, clearError } = useStore();
@@ -165,6 +166,7 @@ export function Shell() {
 /** Busca de aulas e notificações, no canto superior direito. */
 function TopActions({ variant }: { variant: "bar" | "float" }) {
   const { db, user } = useStore();
+  const theme = useTheme();
   const [panel, setPanel] = useState<"search" | "bell" | null>(null);
   const [q, setQ] = useState("");
   const ref = useRef<HTMLDivElement>(null);
@@ -205,6 +207,14 @@ function TopActions({ variant }: { variant: "bar" | "float" }) {
 
   return (
     <div className={`top-actions top-actions-${variant}`} ref={ref}>
+      <button
+        className="round-btn"
+        aria-label={theme.effective === "dark" ? "Usar modo claro" : "Usar modo escuro"}
+        title={theme.effective === "dark" ? "Modo claro" : "Modo escuro"}
+        onClick={theme.toggle}
+      >
+        <Icon name={theme.effective === "dark" ? "sun" : "moon"} size={20} />
+      </button>
       <button className="round-btn" aria-label="Buscar aulas" aria-expanded={panel === "search"} onClick={() => setPanel(panel === "search" ? null : "search")}>
         <Icon name="search" size={20} />
       </button>

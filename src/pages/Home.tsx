@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Icon } from "../components/Icon";
 import { ToothArt } from "../components/ToothArt";
 import { InstallCard } from "../components/InstallCard";
+import { MentorHome } from "./MentorHome";
 import { moduleProgress, useStore } from "../store";
 import { duration, firstName, greeting, meetingDate, plural, relativeDay, shortDate } from "../lib/format";
 
@@ -20,6 +21,7 @@ export function Home() {
   const { db, user, allLessons, isDone } = useStore();
   const navigate = useNavigate();
   if (!user) return null;
+  if (user.role === "mentor") return <MentorHome />;
 
   const done = allLessons.filter((l) => isDone(l.id));
   const watchedMin = done.reduce((s, l) => s + l.durationMin, 0);
@@ -48,13 +50,10 @@ export function Home() {
 
   const today = new Intl.DateTimeFormat("pt-BR", { weekday: "long", day: "numeric", month: "long" }).format(new Date());
   const remaining = current ? current.lessons.filter((l) => !isDone(l.id)).length : 0;
-  const subtitle =
-    user.role === "mentor"
-      ? "Você está vendo a área do aluno como mentor."
-      : current
-        ? `${remaining === 1 ? "Falta" : "Faltam"} ${plural(remaining, "aula", "aulas")} para você concluir o módulo ${currentIdx + 1}.` +
-          (upcoming[0] ? ` Próximo encontro ao vivo ${relativeDay(upcoming[0].startsAt)}.` : "")
-        : "Você concluiu todas as aulas da mentoria. Parabéns!";
+  const subtitle = current
+    ? `${remaining === 1 ? "Falta" : "Faltam"} ${plural(remaining, "aula", "aulas")} para você concluir o módulo ${currentIdx + 1}.` +
+      (upcoming[0] ? ` Próximo encontro ao vivo ${relativeDay(upcoming[0].startsAt)}.` : "")
+    : "Você concluiu todas as aulas da mentoria. Parabéns!";
   const cheer =
     pct >= 100
       ? { title: "Mentoria concluída!", text: "Você assistiu a todas as aulas. Agora é levar tudo para a clínica." }
@@ -73,7 +72,7 @@ export function Home() {
           </h1>
           <p className="hello-sub">{subtitle}</p>
         </header>
-        {user.role !== "mentor" && <Journey pct={pct} currentIdx={currentIdx} />}
+        <Journey pct={pct} currentIdx={currentIdx} />
       </div>
 
       <InstallCard />

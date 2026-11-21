@@ -37,6 +37,7 @@ export interface User {
   genero?: "f" | "m";
   city?: string;
   joinedAt: string; // ISO date
+  lastSeenAt?: string; // último acesso ao app (ISO)
 }
 
 export interface LiveMeeting {
@@ -168,6 +169,16 @@ export const seedCompleted: Record<string, string[]> = {
   "u-juliana": firstN(7),
   "u-thiago": firstN(3),
   "u-marina": firstN(0),
+};
+
+// Ritmo de estudo de cada aluno no exemplo: uma aula a cada N dias, a última há X dias.
+// Dá ao painel do mentor uma turma realista: gente em dia, gente parando, gente que nem começou.
+export const seedPace: Record<string, { every: number; lastAgo: number; seenAgoHours: number }> = {
+  "u-camila": { every: 4, lastAgo: 1, seenAgoHours: 2 },
+  "u-rafael": { every: 3, lastAgo: 0, seenAgoHours: 5 },
+  "u-juliana": { every: 5, lastAgo: 11, seenAgoHours: 24 * 9 },
+  "u-thiago": { every: 6, lastAgo: 19, seenAgoHours: 24 * 18 },
+  "u-marina": { every: 1, lastAgo: 0, seenAgoHours: 24 * 31 },
 };
 
 export const seedNotes: Record<string, Record<string, string>> = {

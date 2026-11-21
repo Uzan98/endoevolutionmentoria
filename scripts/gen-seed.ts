@@ -1,7 +1,7 @@
 // Gera supabase/seed.sql a partir do conteúdo de demonstração (src/data/*.ts).
 // Uso: npm run seed:gen
 import { writeFileSync } from "node:fs";
-import { seedCompleted, seedMeetings, seedModules, seedNotes, seedUsers } from "../src/data/seed";
+import { seedCompleted, seedMeetings, seedModules, seedNotes, seedPace, seedUsers } from "../src/data/seed";
 import { seedForum } from "../src/data/forum";
 import { seedChat } from "../src/data/chat";
 
@@ -43,10 +43,15 @@ for (const m of seedMeetings)
   out.push(`insert into public.meetings (id, title, starts_at, duration_min, link) values (${q(m.id)}, ${q(m.title)}, ${q(m.startsAt)}, ${m.durationMin}, ${q(m.link)}) on conflict (id) do nothing;`);
 
 // progresso, última aula e anotações
-for (const [user, ids] of Object.entries(seedCompleted))
-  ids.forEach((id, i) =>
-    out.push(`insert into public.progress (user_id, lesson_id, completed_at) values (${U(user)}, ${q(id)}, now() - interval '${ids.length - i} days') on conflict do nothing;`),
-  );
+for (const [user, ids] of Object.entries(seedCompleted)) {
+  const pace = seedPace[user] ?? { every: 1, lastAgo: 0 };
+  ids.forEach((id, i) => {
+    const days = pace.lastAgo + (ids.length - 1 - i) * pace.every;
+    out.push(`insert into public.progress (user_id, lesson_id, completed_at) values (${U(user)}, ${q(id)}, now() - interval '${days} days' - interval '${(i * 37) % 600} minutes') on conflict do nothing;`);
+  });
+}
+for (const [user, pace] of Object.entries(seedPace))
+  out.push(`update public.profiles set last_seen_at = now() - interval '${pace.seenAgoHours} hours' where id = ${U(user)};`);
 out.push(`update public.profiles set last_lesson_id = 'aula-9' where id = ${U("u-camila")};`);
 for (const [user, notes] of Object.entries(seedNotes))
   for (const [lesson, body] of Object.entries(notes))
@@ -106,7 +111,7 @@ writeFileSync(
     `delete from public.notes where user_id in (${demoIds});`,
     `delete from public.messages where student_id in (${demoIds});`,
     `delete from public.chat_reads where user_id in (${demoIds}) or student_id in (${demoIds});`,
-    `update public.profiles set last_lesson_id = null where id in (${demoIds});`,
+    `update public.profiles set last_lesson_id = null, last_seen_at = null where id in (${demoIds});`,
     "commit;",
     "",
   ].join("\n") + out.join("\n") + "\n",

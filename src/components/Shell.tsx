@@ -7,6 +7,7 @@ import { useAppUpdate, useOnline, usePWAInstall } from "../lib/pwa";
 import { useTheme } from "../lib/theme";
 import { useChat } from "../chat";
 import { setAppBadge, syncPush } from "../lib/push";
+import { supabase } from "../lib/supabase";
 
 export function Shell() {
   const { user, logout, db, isDone, error, clearError } = useStore();
@@ -47,6 +48,19 @@ export function Shell() {
   const userId = user?.id;
   useEffect(() => {
     if (userId) void syncPush();
+  }, [userId]);
+  // último acesso (painel do mentor): ao abrir e ao voltar para o app; o servidor limita a 1 a cada 10 min
+  useEffect(() => {
+    if (!userId) return;
+    let last = 0;
+    const mark = () => {
+      if (document.visibilityState !== "visible" || Date.now() - last < 10 * 60000) return;
+      last = Date.now();
+      void supabase.rpc("marcar_acesso").then(() => {}); // a consulta só é enviada quando aguardada
+    };
+    mark();
+    document.addEventListener("visibilitychange", mark);
+    return () => document.removeEventListener("visibilitychange", mark);
   }, [userId]);
   // número de mensagens não lidas no ícone do app
   useEffect(() => {

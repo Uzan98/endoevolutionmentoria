@@ -121,6 +121,7 @@ async function fetchAll(): Promise<DB> {
       city: f?.city ?? undefined,
       genero: f?.genero ?? undefined,
       joinedAt: f?.joined_at ?? "",
+      lastSeenAt: f?.last_seen_at ?? undefined,
     } as User;
   });
   for (const p of profiles.data ?? []) if (p.last_lesson_id) db.lastLesson[p.id] = p.last_lesson_id;

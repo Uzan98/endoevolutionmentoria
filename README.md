@@ -31,6 +31,13 @@ A tela de login tem botões que preenchem esses dados.
 - Meu perfil: dados pessoais e troca de senha.
 - Layout próprio para celular (menu em tela cheia).
 
+**Início do mentor** (a página inicial quando o mentor entra)
+- Indicadores: alunos ativos nos últimos 7 dias, progresso médio da turma, aulas concluídas na semana (comparando com a anterior) e pendências.
+- "Precisa da sua atenção": conversas aguardando, dúvidas sem resposta (as mais antigas primeiro) e alunos parados ou que não começaram, com atalho para mandar mensagem.
+- Ritmo da turma (aulas concluídas por semana, 8 semanas, com tabela), onde a turma está (quantos concluíram cada módulo), aulas que mais geram dúvidas e próximo encontro.
+- Lista de alunos com progresso, módulo atual, última atividade e situação pelo ritmo de estudo: em dia (aula concluída nos últimos 7 dias), atenção (8 a 14), parado (mais de 14), não começou.
+- O último acesso é gravado pelo servidor (`marcar_acesso`, no máximo a cada 10 min); o aluno não consegue alterar essa data.
+
 **Painel do mentor** (`/admin`, só para o perfil mentor)
 - Criar, editar, excluir e reordenar módulos e aulas; colar o link do vídeo com pré-visualização; anexar materiais.
 - Alunos: progresso de cada aluno, cadastro de novos alunos.

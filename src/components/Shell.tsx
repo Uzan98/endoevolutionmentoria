@@ -6,6 +6,7 @@ import { meetingDate, plural, relativeDay } from "../lib/format";
 import { useAppUpdate, useOnline, usePWAInstall } from "../lib/pwa";
 import { useTheme } from "../lib/theme";
 import { useChat } from "../chat";
+import { setAppBadge, syncPush } from "../lib/push";
 
 export function Shell() {
   const { user, logout, db, isDone, error, clearError } = useStore();
@@ -41,6 +42,27 @@ export function Shell() {
   useEffect(() => {
     if (loc.pathname === "/mensagens") setIncoming(null);
   }, [loc.pathname]);
+
+  // Notificações: confirma a inscrição deste aparelho ao abrir o app (se a permissão já foi dada)
+  const userId = user?.id;
+  useEffect(() => {
+    if (userId) void syncPush();
+  }, [userId]);
+  // número de mensagens não lidas no ícone do app
+  useEffect(() => {
+    if (chat.ready) setAppBadge(chat.totalUnread);
+  }, [chat.ready, chat.totalUnread]);
+  // tocou numa notificação com o app aberto: troca de tela sem recarregar
+  useEffect(() => {
+    if (!("serviceWorker" in navigator)) return;
+    const onMsg = (e: MessageEvent) => {
+      if (e.data?.type !== "abrir" || typeof e.data.url !== "string") return;
+      const u = new URL(e.data.url, window.location.origin);
+      if (u.origin === window.location.origin) nav(u.pathname + u.search);
+    };
+    navigator.serviceWorker.addEventListener("message", onMsg);
+    return () => navigator.serviceWorker.removeEventListener("message", onMsg);
+  }, [nav]);
 
   // Ao trocar de página: fecha o menu do celular e volta ao topo.
   // (corpo com chaves: scrollTo pode retornar uma Promise, que o React trataria como cleanup)

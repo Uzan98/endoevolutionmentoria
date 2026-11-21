@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { useStore } from "../store";
 import { useTheme, type ThemeChoice } from "../lib/theme";
 import { Icon } from "../components/Icon";
+import { NotificationSettings } from "../components/Notifications";
 
 export function Profile() {
   const { user, updateUser, updatePassword } = useStore();
@@ -85,6 +86,13 @@ export function Profile() {
             {pwMsg && <span className={pwMsg.ok ? "caption" : "form-error"} role="status">{pwMsg.text}</span>}
           </div>
         </form>
+      </section>
+      <section className="settings-row" id="notificacoes">
+        <div className="settings-label">
+          <h2>Notificações</h2>
+          <p className="muted">Avisos no celular e no computador, mesmo com a plataforma fechada. Ative em cada aparelho que você usa.</p>
+        </div>
+        <NotificationSettings />
       </section>
       <section className="settings-row">
         <div className="settings-label">

@@ -8,7 +8,7 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
       injectRegister: false, // registrado em src/lib/pwa.ts (procura versão nova ao voltar para o app)
-      includeAssets: ["favicon.svg", "icons/apple-touch-icon.png", "icons/favicon-32.png"],
+      includeAssets: ["favicon.svg", "push-sw.js", "icons/badge-96.png", "icons/apple-touch-icon.png", "icons/favicon-32.png"],
       manifest: {
         id: "/",
         name: "Endo Evolution · Mentoria",
@@ -45,6 +45,7 @@ export default defineConfig({
         globIgnores: ["screenshots/**"],
         navigateFallback: "/index.html",
         cleanupOutdatedCaches: true,
+        importScripts: ["/push-sw.js"], // notificações push
         clientsClaim: true,
         skipWaiting: true,
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,

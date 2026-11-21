@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "./lib/supabase";
+import { forgetDevice } from "./lib/push";
 import type { Lesson, LiveMeeting, Material, Module, User } from "./data/seed";
 import type { Reply, Thread } from "./data/forum";
 
@@ -325,6 +326,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       return err ? { ok: false, message: friendly(err.message) } : { ok: true };
     },
     logout: async () => {
+      await forgetDevice(); // o próximo a usar este aparelho não recebe as notificações desta conta
       await supabase.auth.signOut();
     },
     requestPasswordReset: async (email) => {

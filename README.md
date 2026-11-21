@@ -53,6 +53,15 @@ A tela de login tem botões que preenchem esses dados.
 - **Código:** `src/chat.tsx` (conexão e estado) e `src/pages/Messages.tsx` (tela). Links nas mensagens só viram link se forem `http(s)`.
 - **Limites do plano gratuito:** 200 conexões simultâneas e 2 milhões de mensagens Realtime por mês, folgado para uma turma de mentoria.
 
+## Notificações push
+
+- **O que avisa:** mensagem nova no chat (aluno ↔ equipe), resposta a uma dúvida do fórum, dúvida nova (para o mentor), aula nova (para os alunos) e encontro ao vivo 1 h antes e no início. Tocar na notificação abre a tela certa. O número de mensagens não lidas aparece no ícone do app.
+- **Onde funciona:** Android e computador (Chrome, Edge, Firefox, Safari no Mac), no navegador ou no app instalado. **iPhone/iPad: só no app instalado** (iOS 16.4+), porque é uma regra da Apple.
+- **Ativar:** Meu perfil → Notificações (ou o convite dentro do chat). Cada pessoa escolhe o que quer receber. Ao sair da conta, o aparelho para de receber as notificações dela.
+- **Como funciona:** gatilhos no banco (`supabase/migrations/20261120000006_push.sql`) chamam a Edge Function `enviar-push` via pg_net, sem atrasar quem gravou. Os lembretes de encontro saem por um agendamento (pg_cron, a cada 5 min), e cada lembrete sai uma vez só. A função criptografa e envia pelo padrão Web Push (`supabase/functions/enviar-push/webpush.ts`, sem bibliotecas externas) e apaga os aparelhos que não existem mais. O tratamento no aparelho fica em `public/push-sw.js`.
+- **Segredos:** a chave privada VAPID e o segredo do gatilho ficam só nos segredos da função (`VAPID_PRIVATE_JWK`, `PUSH_HOOK_SECRET`) e no Vault (`push_hook_secret`). No site vai só a chave pública (`VITE_VAPID_PUBLIC_KEY` no `.env`). Se trocar as chaves, todos precisam ativar de novo (o app refaz sozinho ao abrir, se a permissão já tiver sido dada).
+- **Custo:** zero. Usa os serviços de push gratuitos do Google, Apple e Mozilla.
+
 ## App no celular (PWA)
 
 A plataforma é um app instalável:

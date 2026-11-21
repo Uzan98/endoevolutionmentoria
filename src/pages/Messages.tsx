@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { useStore } from "../store";
 import { useChat, type ChatMessage } from "../chat";
 import { Icon, ToothLogo } from "../components/Icon";
+import { PushNudge } from "../components/Notifications";
 import { clock, dayLabel, firstName, initials, listTime } from "../lib/format";
 
 const SUGGESTIONS = ["Tenho uma dúvida sobre um caso clínico", "Não consigo acessar uma aula", "Dúvida sobre o encontro ao vivo"];
@@ -169,6 +170,7 @@ function Conversation({ studentId, avatar, title, status, live, onBack, empty }:
   const { user } = useStore();
   const chat = useChat();
   const me = user!.id;
+  const isMentorView = user!.role === "mentor";
   const messages = chat.conversation(studentId);
   const unread = chat.unread(studentId);
   const seen = chat.seenUntil(studentId);
@@ -227,6 +229,7 @@ function Conversation({ studentId, avatar, title, status, live, onBack, empty }:
           <span className={`convo-status${live ? " is-live" : ""}`} aria-live="polite">{status}</span>
         </span>
       </header>
+      <PushNudge text={isMentorView ? "Ative as notificações para saber na hora quando um aluno escrever." : "Ative as notificações para saber na hora quando a equipe responder."} />
 
       <div
         className="convo-body"
